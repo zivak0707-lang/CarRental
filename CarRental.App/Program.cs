@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using CarRental.Core.Domain;
 
 Rental rental = new()
@@ -10,11 +10,15 @@ Rental rental = new()
 
 rental.AddLine(new RentalLine
 {
-    Plate = "AA1234KI", Days = 3, DailyRate = 1200.00m,
+    Plate = "AA1234KI",
+    Days = 3,
+    DailyRate = 1200.00m,
 });
 rental.AddLine(new RentalLine
 {
-    Plate = "KA5678BB", Days = 2, DailyRate = 950.50m,
+    Plate = "KA5678BB",
+    Days = 2,
+    DailyRate = 950.50m,
 });
 
 string total = rental.Total()

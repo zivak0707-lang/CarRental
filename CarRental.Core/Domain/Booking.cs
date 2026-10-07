@@ -80,6 +80,27 @@ public class Booking
     public DateTime CreatedAt { get; private set; }
 
     /// <summary>
+    /// Шукає бронювання за ідентифікатором у списку.
+    /// </summary>
+    /// <param name="bookings">Список бронювань для пошуку.</param>
+    /// <param name="bookingId">Ідентифікатор шуканого бронювання.</param>
+    /// <returns>
+    /// Знайдене бронювання або null, якщо збігів немає.
+    /// </returns>
+    public static Booking? FindById(List<Booking> bookings, string bookingId)
+    {
+        for (int i = 0; i < bookings.Count; i++)
+        {
+            if (bookings[i].Id == bookingId)
+            {
+                return bookings[i];
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// Додає до бронювання рядок із автомобілем.
     /// </summary>
     /// <param name="plate">Державний номер автомобіля.</param>
@@ -109,7 +130,7 @@ public class Booking
         {
             int days = int.Parse(_lines[i][1]);
             decimal dailyRate = decimal.Parse(_lines[i][2]);
-            total = total + days * dailyRate;
+            total += days * dailyRate;
             lineCount = lineCount + 1;
         }
 
@@ -178,7 +199,7 @@ public class Booking
     /// </returns>
     public bool IsValid()
     {
-        if (Id != null && Id != ""
+        if (Id != null && Id != string.Empty
             && CustomerName != null
             && CustomerName.Length >= MinCustomerNameLength
             && _lines.Count > 0
@@ -198,7 +219,7 @@ public class Booking
     /// <returns>Текст звіту з рядками й підсумком.</returns>
     public string BuildReport()
     {
-        string report = "";
+        string report = string.Empty;
         for (int i = 0; i < _lines.Count; i++)
         {
             report = report + "Авто: " + _lines[i][0]
@@ -211,26 +232,5 @@ public class Booking
 
         report = report + "Разом: " + CalculateTotal(false) + "\n";
         return report;
-    }
-
-    /// <summary>
-    /// Шукає бронювання за ідентифікатором у списку.
-    /// </summary>
-    /// <param name="bookings">Список бронювань для пошуку.</param>
-    /// <param name="bookingId">Ідентифікатор шуканого бронювання.</param>
-    /// <returns>
-    /// Знайдене бронювання або null, якщо збігів немає.
-    /// </returns>
-    public static Booking FindById(List<Booking> bookings, string bookingId)
-    {
-        for (int i = 0; i < bookings.Count; i++)
-        {
-            if (bookings[i].Id == bookingId)
-            {
-                return bookings[i];
-            }
-        }
-
-        return null;
     }
 }

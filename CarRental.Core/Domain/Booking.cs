@@ -4,19 +4,17 @@ using System.Linq;
 
 namespace CarRental.Core.Domain;
 
-// клас
 public class Booking
 {
     private readonly List<string[]> _lines = new List<string[]>();
 
     // public string prim; // примітка, поки не треба
 
-    // конструктор
     public Booking(string id, string customerName)
     {
-        Id = id; // ставимо id
-        CustomerName = customerName; // ставимо cl
-        CreatedAt = DateTime.Now; // ставимо дату
+        Id = id;
+        CustomerName = customerName;
+        CreatedAt = DateTime.Now;
     }
 
     public string Id { get; private set; }
@@ -27,17 +25,15 @@ public class Booking
 
     public DateTime CreatedAt { get; private set; }
 
-    // метод додавання
     public void AddLine(string plate, int days, decimal dailyRate)
     {
         string[] line = new string[3];
         line[0] = plate;
         line[1] = days.ToString();
         line[2] = dailyRate.ToString();
-        _lines.Add(line); // додаємо t у ln
+        _lines.Add(line);
     }
 
-    // ProcessData
     public decimal CalculateTotal(bool isRegularCustomer)
     {
         decimal total = 0;
@@ -46,11 +42,14 @@ public class Booking
         {
             int days = int.Parse(_lines[i][1]);
             decimal dailyRate = decimal.Parse(_lines[i][2]);
-            total = total + days * dailyRate; // додаємо до суми
-            lineCount = lineCount + 1; // збільшуємо kolvo на одиницю
+            total = total + days * dailyRate;
+            lineCount = lineCount + 1;
         }
 
         // if (sum1 > 500) { sum1 = sum1 - 50; } // стара знижка
+
+        // Порядок нарахування: спочатку знижка за сумою (постійному покупцю
+        // або на велике замовлення, діє лише одна), потім гуртова знижка.
         if (isRegularCustomer == true && total > 1000)
         {
             total = total * 0.9m;
@@ -74,11 +73,11 @@ public class Booking
             total = 0;
         }
 
+        // ПДВ 20 % нараховується на суму вже після всіх знижок
         total = total + total * 0.2m;
-        return Math.Round(total, 2); // повертаємо sum1
+        return Math.Round(total, 2);
     }
 
-    // міняємо статус
     public bool TryChangeStatus(int newStatus)
     {
         if (Status == 0 && newStatus == 1)
@@ -99,10 +98,9 @@ public class Booking
             return true;
         }
 
-        return false; // не можна
+        return false;
     }
 
-    // перевірка
     public bool IsValid()
     {
         if (Id != null && Id != ""
@@ -119,7 +117,6 @@ public class Booking
         return false;
     }
 
-    // звіт
     public string BuildReport()
     {
         string report = "";
@@ -134,10 +131,9 @@ public class Booking
         }
 
         report = report + "Разом: " + CalculateTotal(false) + "\n";
-        return report; // повертаємо s
+        return report;
     }
 
-    // пошук
     public static Booking FindById(List<Booking> bookings, string bookingId)
     {
         for (int i = 0; i < bookings.Count; i++)

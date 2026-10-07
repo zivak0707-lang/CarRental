@@ -1,30 +1,13 @@
-using System.Globalization;
+using System.Text;
 using CarRental.Core.Domain;
 
-Rental rental = new()
-{
-    Id = 1,
-    CustomerId = 10,
-    CreatedAt = DateTimeOffset.Now,
-};
+Console.OutputEncoding = Encoding.UTF8;
 
-rental.AddLine(new RentalLine
-{
-    Plate = "AA1234KI",
-    Days = 3,
-    DailyRate = 1200.00m,
-});
-rental.AddLine(new RentalLine
-{
-    Plate = "KA5678BB",
-    Days = 2,
-    DailyRate = 950.50m,
-});
-
-string total = rental.Total()
-    .ToString("F2", CultureInfo.InvariantCulture);
-
-Console.WriteLine($"Прокат #{rental.Id}");
-Console.WriteLine($"Стан: {rental.Status}");
-Console.WriteLine($"Позицій: {rental.Lines.Count}");
-Console.WriteLine($"Сума: {total}");
+var z = new bron("B-1001", "Іваненко");
+z.Add("AA1234AA", 3, 250m);
+z.Add("KA5678KA", 12, 90m);
+Console.WriteLine(z.ProcessData(false));
+Console.WriteLine(z.ProcessData(true));
+Console.WriteLine(z.Ck());
+Console.WriteLine(z.Chg(1));
+Console.Write(z.Rep());

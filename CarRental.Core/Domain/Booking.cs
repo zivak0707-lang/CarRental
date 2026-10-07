@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace CarRental.Core.Domain;
 
 /// <summary>
@@ -10,9 +6,46 @@ namespace CarRental.Core.Domain;
 /// </summary>
 public class Booking
 {
-    private readonly List<string[]> _lines = new List<string[]>();
+    /// <summary>Стан: нове бронювання.</summary>
+    public const int StatusNew = 0;
 
-    // public string prim; // примітка, поки не треба
+    /// <summary>Стан: бронювання підтверджено.</summary>
+    public const int StatusConfirmed = 1;
+
+    /// <summary>Стан: автомобіль видано клієнтові.</summary>
+    public const int StatusIssued = 2;
+
+    /// <summary>Стан: бронювання скасовано.</summary>
+    public const int StatusCancelled = 3;
+
+    /// <summary>Ставка податку на додану вартість.</summary>
+    private const decimal VatRate = 0.2m;
+
+    /// <summary>Поріг суми для знижки постійному клієнту, грн.</summary>
+    private const decimal RegularDiscountThreshold = 1000m;
+
+    /// <summary>Частка знижки постійному клієнту.</summary>
+    private const decimal RegularDiscountRate = 0.10m;
+
+    /// <summary>Поріг суми для знижки на велике бронювання, грн.</summary>
+    private const decimal LargeOrderThreshold = 5000m;
+
+    /// <summary>Частка знижки на велике бронювання.</summary>
+    private const decimal LargeOrderDiscountRate = 0.15m;
+
+    /// <summary>Кількість рядків, більше якої діє гуртова знижка.</summary>
+    private const int BulkLineCount = 10;
+
+    /// <summary>Сума гуртової знижки, грн.</summary>
+    private const decimal BulkDiscountAmount = 100m;
+
+    /// <summary>Максимально допустима кількість рядків у бронюванні.</summary>
+    private const int MaxLineCount = 100;
+
+    /// <summary>Найкоротша допустима довжина імені клієнта.</summary>
+    private const int MinCustomerNameLength = 3;
+
+    private readonly List<string[]> _lines = new List<string[]>();
 
     /// <summary>
     /// Створює нове бронювання на вказаного клієнта.
@@ -37,9 +70,9 @@ public class Booking
     public string CustomerName { get; private set; }
 
     /// <summary>
-    /// Поточний стан бронювання (число від 0 до 3).
+    /// Поточний стан бронювання (одна з констант Status...).
     /// </summary>
-    public int Status { get; private set; } // 0-нова,1-підтв,2-видано,3-скасов
+    public int Status { get; private set; }
 
     /// <summary>
     /// Дата й час створення бронювання.
@@ -80,26 +113,20 @@ public class Booking
             lineCount = lineCount + 1;
         }
 
-        // if (sum1 > 500) { sum1 = sum1 - 50; } // стара знижка
-
         // Порядок нарахування: спочатку знижка за сумою (постійному покупцю
         // або на велике замовлення, діє лише одна), потім гуртова знижка.
-        if (isRegularCustomer == true && total > 1000)
+        if (isRegularCustomer && total > RegularDiscountThreshold)
         {
-            total = total * 0.9m;
+            total *= 1m - RegularDiscountRate;
         }
-        else if (total > 5000)
+        else if (total > LargeOrderThreshold)
         {
-            total = total * 0.85m;
-        }
-        else
-        {
-            total = total;
+            total *= 1m - LargeOrderDiscountRate;
         }
 
-        if (lineCount > 10)
+        if (lineCount > BulkLineCount)
         {
-            total = total - 100;
+            total -= BulkDiscountAmount;
         }
 
         if (total < 0)
@@ -108,7 +135,7 @@ public class Booking
         }
 
         // ПДВ 20 % нараховується на суму вже після всіх знижок
-        total = total + total * 0.2m;
+        total += total * VatRate;
         return Math.Round(total, 2);
     }
 
@@ -122,21 +149,21 @@ public class Booking
     /// </returns>
     public bool TryChangeStatus(int newStatus)
     {
-        if (Status == 0 && newStatus == 1)
+        if (Status == StatusNew && newStatus == StatusConfirmed)
         {
-            Status = 1;
+            Status = StatusConfirmed;
             return true;
         }
 
-        if (Status == 1 && newStatus == 2)
+        if (Status == StatusConfirmed && newStatus == StatusIssued)
         {
-            Status = 2;
+            Status = StatusIssued;
             return true;
         }
 
-        if (Status == 0 && newStatus == 3)
+        if (Status == StatusNew && newStatus == StatusCancelled)
         {
-            Status = 3;
+            Status = StatusCancelled;
             return true;
         }
 
@@ -153,11 +180,11 @@ public class Booking
     {
         if (Id != null && Id != ""
             && CustomerName != null
-            && CustomerName.Length > 2
+            && CustomerName.Length >= MinCustomerNameLength
             && _lines.Count > 0
-            && _lines.Count < 100
-            && Status >= 0
-            && Status <= 3)
+            && _lines.Count < MaxLineCount
+            && Status >= StatusNew
+            && Status <= StatusCancelled)
         {
             return true;
         }

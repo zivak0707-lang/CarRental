@@ -36,28 +36,47 @@ dotnet_naming_symbols.priv_field.applicable_accessibilities = private
 dotnet_naming_style.underscore_camel.capitalization = camel_case
 dotnet_naming_style.underscore_camel.required_prefix = _
 
+# константи (у тому числі приватні) іменуємо PascalCase, як вимагає методичка
+dotnet_naming_rule.private_const_pascal.symbols = private_const
+dotnet_naming_rule.private_const_pascal.style = pascal_case_style
+dotnet_naming_rule.private_const_pascal.severity = warning
+
+dotnet_naming_symbols.private_const.applicable_kinds = field
+dotnet_naming_symbols.private_const.applicable_accessibilities = private
+dotnet_naming_symbols.private_const.required_modifiers = const
+
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case
+
 # StyleCop: свідомо вимкнені правила
 # заголовок з ліцензією в навчальному проєкті не потрібен
 dotnet_diagnostic.SA1633.severity = none
-# префікс this. суперечить конвенції .NET
+# префікс this, суперечить конвенції .NET
 dotnet_diagnostic.SA1101.severity = none
 # using поза namespace — стандарт шаблонів .NET
 dotnet_diagnostic.SA1200.severity = none
 # приватні поля іменуємо з _, як прийнято в .NET
 dotnet_diagnostic.SA1309.severity = none
-# XML-документацію вимагатимемо з ЛР № 4, поки що ні
+# аналіз XML-коментарів без файлу документації не потрібен
 dotnet_diagnostic.SA0001.severity = none
-dotnet_diagnostic.SA1600.severity = none
+# частково визначені типи в проєкті не використовуються
 dotnet_diagnostic.SA1601.severity = none
-dotnet_diagnostic.SA1602.severity = none
-dotnet_diagnostic.SA1611.severity = none
-dotnet_diagnostic.SA1615.severity = none
 # кома в кінці багаторядкового ініціалізатора необов'язкова
 dotnet_diagnostic.SA1413.severity = none
+# SA1623 і SA1642 вимагають англійських зачинів "Gets" і "Initializes a new instance of",
+# а документація за стандартом курсу українською
+dotnet_diagnostic.SA1623.severity = none
+dotnet_diagnostic.SA1642.severity = none
+# CA1305 (культура в Parse/ToString): виправлення потребує типізованих рядків замість
+# string[3], це зміна структури даних (ЛР № 3 і № 6), записано до реєстру боргу (пункт 3)
+dotnet_diagnostic.CA1305.severity = none
 
 # правила, які лишаємо суворими
 dotnet_diagnostic.SA1028.severity = warning
 dotnet_diagnostic.SA1201.severity = warning
 dotnet_diagnostic.SA1503.severity = warning
 dotnet_diagnostic.SA1516.severity = warning
+dotnet_diagnostic.SA1600.severity = warning
+dotnet_diagnostic.SA1602.severity = warning
+dotnet_diagnostic.SA1611.severity = warning
+dotnet_diagnostic.SA1615.severity = warning
 dotnet_diagnostic.IDE0055.severity = warning

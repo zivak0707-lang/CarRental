@@ -4,12 +4,21 @@ using System.Linq;
 
 namespace CarRental.Core.Domain;
 
+/// <summary>
+/// Бронювання автомобілів: рядки з авто, кількістю діб і ставкою,
+/// розрахунок підсумкової суми та керування станом бронювання.
+/// </summary>
 public class Booking
 {
     private readonly List<string[]> _lines = new List<string[]>();
 
     // public string prim; // примітка, поки не треба
 
+    /// <summary>
+    /// Створює нове бронювання на вказаного клієнта.
+    /// </summary>
+    /// <param name="id">Ідентифікатор бронювання.</param>
+    /// <param name="customerName">Ім'я клієнта.</param>
     public Booking(string id, string customerName)
     {
         Id = id;
@@ -17,14 +26,32 @@ public class Booking
         CreatedAt = DateTime.Now;
     }
 
+    /// <summary>
+    /// Ідентифікатор бронювання.
+    /// </summary>
     public string Id { get; private set; }
 
+    /// <summary>
+    /// Ім'я клієнта.
+    /// </summary>
     public string CustomerName { get; private set; }
 
+    /// <summary>
+    /// Поточний стан бронювання (число від 0 до 3).
+    /// </summary>
     public int Status { get; private set; } // 0-нова,1-підтв,2-видано,3-скасов
 
+    /// <summary>
+    /// Дата й час створення бронювання.
+    /// </summary>
     public DateTime CreatedAt { get; private set; }
 
+    /// <summary>
+    /// Додає до бронювання рядок із автомобілем.
+    /// </summary>
+    /// <param name="plate">Державний номер автомобіля.</param>
+    /// <param name="days">Кількість діб оренди.</param>
+    /// <param name="dailyRate">Ставка за добу, грн.</param>
     public void AddLine(string plate, int days, decimal dailyRate)
     {
         string[] line = new string[3];
@@ -34,6 +61,13 @@ public class Booking
         _lines.Add(line);
     }
 
+    /// <summary>
+    /// Обчислює підсумкову суму до сплати з урахуванням знижок і ПДВ.
+    /// </summary>
+    /// <param name="isRegularCustomer">Ознака постійного клієнта.</param>
+    /// <returns>
+    /// Сума до сплати, заокруглена до двох знаків.
+    /// </returns>
     public decimal CalculateTotal(bool isRegularCustomer)
     {
         decimal total = 0;
@@ -78,6 +112,14 @@ public class Booking
         return Math.Round(total, 2);
     }
 
+    /// <summary>
+    /// Змінює стан бронювання, якщо перехід дозволений
+    /// правилами предметної області.
+    /// </summary>
+    /// <param name="newStatus">Цільовий стан бронювання.</param>
+    /// <returns>
+    /// true, якщо перехід виконано; false, якщо він заборонений.
+    /// </returns>
     public bool TryChangeStatus(int newStatus)
     {
         if (Status == 0 && newStatus == 1)
@@ -101,6 +143,12 @@ public class Booking
         return false;
     }
 
+    /// <summary>
+    /// Перевіряє, чи бронювання коректне.
+    /// </summary>
+    /// <returns>
+    /// true, якщо бронювання коректне; інакше false.
+    /// </returns>
     public bool IsValid()
     {
         if (Id != null && Id != ""
@@ -117,6 +165,10 @@ public class Booking
         return false;
     }
 
+    /// <summary>
+    /// Формує текстовий звіт за рядками бронювання та підсумковою сумою.
+    /// </summary>
+    /// <returns>Текст звіту з рядками й підсумком.</returns>
     public string BuildReport()
     {
         string report = "";
@@ -134,6 +186,14 @@ public class Booking
         return report;
     }
 
+    /// <summary>
+    /// Шукає бронювання за ідентифікатором у списку.
+    /// </summary>
+    /// <param name="bookings">Список бронювань для пошуку.</param>
+    /// <param name="bookingId">Ідентифікатор шуканого бронювання.</param>
+    /// <returns>
+    /// Знайдене бронювання або null, якщо збігів немає.
+    /// </returns>
     public static Booking FindById(List<Booking> bookings, string bookingId)
     {
         for (int i = 0; i < bookings.Count; i++)

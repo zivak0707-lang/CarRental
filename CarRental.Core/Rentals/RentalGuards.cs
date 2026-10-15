@@ -52,4 +52,17 @@ internal static class RentalGuards
             EnsureLineValid(line);
         }
     }
+
+    /// <summary>Перевіряє грошову суму: вона не може бути від'ємною.</summary>
+    /// <param name="amount">Сума, грн.</param>
+    public static void EnsureAmountValid(decimal amount)
+    {
+        if (amount < 0m)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(amount),
+                amount,
+                "Сума не може бути від'ємною.");
+        }
+    }
 }

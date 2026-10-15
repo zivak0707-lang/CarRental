@@ -6,79 +6,58 @@ namespace CarRental.Tests;
 public class RentalTotalCalculatorTests
 {
     [Fact]
-    public void Process_RegularCustomer_Returns1292()
+    public void Calculate_RegularCustomer_Returns1292()
     {
-        List<RentalLine> lines = new()
-        {
-            new RentalLine { Plate = "AA1234KI", Days = 12, DailyRate = 100m },
-            new RentalLine { Plate = "KA5678BB", Days = 1, DailyRate = 250m },
-        };
+        TotalRequest request = SampleRequests.RegularCustomer();
 
-        decimal total = RentalTotalCalculator.Process(
-            1,
-            "Іваненко",
-            "i@ex.com",
-            true,
-            lines,
-            new DateOnly(2026, 3, 10),
-            null,
-            RentalStatus.New,
-            false,
-            60m,
-            out RentalStatus next);
+        TotalResult result = RentalTotalCalculator.Calculate(request);
 
-        Assert.Equal(1292.70m, total);
-        Assert.Equal(RentalStatus.Confirmed, next);
+        Assert.Equal(1292.70m, result.Total);
+        Assert.Equal(RentalStatus.Confirmed, result.Status);
     }
 
     [Fact]
-    public void Process_SmallRental_AddsDelivery()
+    public void Calculate_SmallRental_AddsDelivery()
     {
         List<RentalLine> lines = new()
         {
             new RentalLine { Plate = "AA1234KI", Days = 2, DailyRate = 200m },
         };
+        TotalRequest request = new(
+            RentalId: 2,
+            Customer: new CustomerInfo("Петренко", "p@ex.com", false),
+            Lines: lines,
+            CreatedAt: new DateOnly(2026, 3, 10),
+            CouponCode: "SALE10",
+            Status: RentalStatus.Confirmed,
+            DeliveryPrice: 60m);
 
-        decimal total = RentalTotalCalculator.Process(
-            2,
-            "Петренко",
-            "p@ex.com",
-            false,
-            lines,
-            new DateOnly(2026, 3, 10),
-            "SALE10",
-            RentalStatus.Confirmed,
-            false,
-            60m,
-            out RentalStatus next);
+        TotalResult result = RentalTotalCalculator.Calculate(request);
 
-        Assert.Equal(420m, total);
-        Assert.Equal(RentalStatus.Active, next);
+        Assert.Equal(420m, result.Total);
+        Assert.Equal(RentalStatus.Active, result.Status);
     }
 
     [Fact]
-    public void Process_FreeRental_ReturnsOnlyDelivery()
+    public void Calculate_FreeRental_ReturnsOnlyDelivery()
     {
         List<RentalLine> lines = new()
         {
             new RentalLine { Plate = "AA1234KI", Days = 12, DailyRate = 0m },
         };
+        TotalRequest request = new(
+            RentalId: 4,
+            Customer: new CustomerInfo("Мельник", "m@ex.com", true),
+            Lines: lines,
+            CreatedAt: new DateOnly(2026, 3, 10),
+            CouponCode: null,
+            Status: RentalStatus.New,
+            DeliveryPrice: 60m);
 
-        decimal total = RentalTotalCalculator.Process(
-            4,
-            "Мельник",
-            "m@ex.com",
-            true,
-            lines,
-            new DateOnly(2026, 3, 10),
-            null,
-            RentalStatus.New,
-            false,
-            60m,
-            out RentalStatus next);
+        TotalResult result = RentalTotalCalculator.Calculate(request);
 
-        Assert.Equal(60m, total);
-        Assert.Equal(RentalStatus.Confirmed, next);
+        Assert.Equal(60m, result.Total);
+        Assert.Equal(RentalStatus.Confirmed, result.Status);
     }
 
     [Fact]

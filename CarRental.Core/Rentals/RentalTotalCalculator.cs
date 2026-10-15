@@ -110,58 +110,21 @@ public static class RentalTotalCalculator
             _ => current,
         };
 
-    /// <summary>Диспетчер: перевіряє вхід, викликає кроки розрахунку й за потреби друкує звіт.</summary>
-    /// <param name="rentalId">Номер прокату.</param>
-    /// <param name="customerName">Ім'я клієнта.</param>
-    /// <param name="customerEmail">Пошта клієнта.</param>
-    /// <param name="isRegular">Ознака постійного клієнта.</param>
-    /// <param name="lines">Рядки прокату.</param>
-    /// <param name="createdAt">Дата створення прокату.</param>
-    /// <param name="couponCode">Код купона або null.</param>
-    /// <param name="status">Поточний стан прокату.</param>
-    /// <param name="printToConsole">Чи друкувати звіт у консоль.</param>
-    /// <param name="deliveryPrice">Вартість подачі автомобіля, грн.</param>
-    /// <param name="newStatus">Стан прокату після розрахунку.</param>
-    /// <returns>Підсумок прокату, грн.</returns>
-    public static decimal Process(
-        int rentalId,
-        string customerName,
-        string customerEmail,
-        bool isRegular,
-        IReadOnlyList<RentalLine> lines,
-        DateOnly createdAt,
-        string? couponCode,
-        RentalStatus status,
-        bool printToConsole,
-        decimal deliveryPrice,
-        out RentalStatus newStatus)
+    /// <summary>Рахує підсумок прокату й наступний стан; не змінює нічого поза собою.</summary>
+    /// <param name="request">Запит на розрахунок.</param>
+    /// <returns>Підсумок прокату й стан після розрахунку.</returns>
+    public static TotalResult Calculate(TotalRequest request)
     {
-        RentalGuards.EnsureHeaderValid(rentalId, customerName, customerEmail);
-        decimal total = SubtotalOf(lines);
-        total -= ClientDiscountOf(total, isRegular);
+        RentalGuards.EnsureRequestValid(request);
+        decimal total = SubtotalOf(request.Lines);
+        total -= ClientDiscountOf(total, request.Customer.IsRegular);
         total -= VolumeDiscountOf(total);
-        total -= CouponDiscountOf(total, couponCode);
-        total -= WeekendDiscountOf(total, createdAt);
-        total += DeliveryFeeOf(total, deliveryPrice);
-        total = status == RentalStatus.Cancelled
+        total -= CouponDiscountOf(total, request.CouponCode);
+        total -= WeekendDiscountOf(total, request.CreatedAt);
+        total += DeliveryFeeOf(total, request.DeliveryPrice);
+        total = request.Status == RentalStatus.Cancelled
             ? 0m
             : Math.Round(Math.Max(total, 0m), 2);
-        newStatus = NextStatusOf(status, total);
-
-        if (printToConsole)
-        {
-            Console.WriteLine("Прокат № " + rentalId);
-            Console.WriteLine("Клієнт: " + customerName);
-            Console.WriteLine("Пошта: " + customerEmail);
-            foreach (RentalLine line in lines)
-            {
-                Console.WriteLine(line.Plate + " x " + line.Days);
-            }
-
-            Console.WriteLine("Разом: " + total);
-            Console.WriteLine("Стан: " + newStatus);
-        }
-
-        return total;
+        return new TotalResult(total, NextStatusOf(request.Status, total));
     }
 }

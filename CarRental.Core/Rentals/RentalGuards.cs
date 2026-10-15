@@ -65,4 +65,18 @@ internal static class RentalGuards
                 "Сума не може бути від'ємною.");
         }
     }
+
+    /// <summary>Перевіряє запит на розрахунок цілком: заголовок, рядки й вартість подачі.</summary>
+    /// <param name="request">Запит на розрахунок.</param>
+    public static void EnsureRequestValid(TotalRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(request.Customer);
+        EnsureHeaderValid(
+            request.RentalId,
+            request.Customer.Name,
+            request.Customer.Email);
+        EnsureLinesValid(request.Lines);
+        ArgumentOutOfRangeException.ThrowIfNegative(request.DeliveryPrice);
+    }
 }

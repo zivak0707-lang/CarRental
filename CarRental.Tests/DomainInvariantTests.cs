@@ -3,6 +3,7 @@ using CarRental.Core.Notifications;
 using CarRental.Core.Pricing;
 using CarRental.Core.Services;
 using CarRental.Core.Storage;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace CarRental.Tests;
 
@@ -35,7 +36,8 @@ public class DomainInvariantTests
         ReservationService service = new(
             new InMemoryReservationRepository(),
             new DiscountPricingPolicy(0.10m),
-            new TextWriterNotifier(TextWriter.Null));
+                 new TextWriterNotifier(TextWriter.Null),
+                 NullLogger<ReservationService>.Instance);
         Reservation reservation = NewReservation(2);
         reservation.AddLine(new ReservationDay("AA1234KI", _start, _start.AddDays(2), 100m));
 

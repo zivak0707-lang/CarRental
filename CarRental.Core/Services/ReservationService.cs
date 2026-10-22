@@ -47,4 +47,96 @@ public sealed class ReservationService
 
         return total;
     }
+
+    /// <summary>ЛР5, стан before: ядро саме розбирає рядки з консолі.</summary>
+    /// <param name="reservationId">Номер бронювання.</param>
+    /// <param name="plate">Державний номер.</param>
+    /// <param name="startDate">Дата видачі рядком.</param>
+    /// <param name="endDate">Дата повернення рядком.</param>
+    /// <param name="dailyRate">Ставка за добу рядком.</param>
+    public void AddLine(
+        int reservationId,
+        string plate,
+        string startDate,
+        string endDate,
+        string dailyRate)
+    {
+        var reservation = _repository.GetById(reservationId);
+        var start = DateOnly.Parse(startDate);
+        var end = DateOnly.Parse(endDate);
+        var rate = decimal.Parse(dailyRate);
+        reservation!.AddLine(new ReservationDay(plate, start, end, rate));
+    }
+
+    /// <summary>ЛР5, стан before: коди повернення без назв і сенсу.</summary>
+    /// <param name="reservationId">Номер бронювання.</param>
+    /// <param name="amount">Сплачена сума, грн.</param>
+    /// <returns>0 — успіх; -1, -2, -3 — помилки.</returns>
+    public int Pay(int reservationId, decimal amount)
+    {
+        var reservation = _repository.GetById(reservationId);
+        if (reservation == null)
+        {
+            return -1;
+        }
+
+        if (reservation.Status != ReservationStatus.Confirmed)
+        {
+            return -2;
+        }
+
+        if (amount < TotalOf(reservation))
+        {
+            return -3;
+        }
+
+        reservation.PickUp();
+        return 0;
+    }
+
+    /// <summary>ЛР5, стан before: проковтнутий виняток і повернення null.</summary>
+    /// <param name="reservationId">Номер бронювання.</param>
+    /// <returns>Бронювання або null.</returns>
+    public Reservation? Load(int reservationId)
+    {
+        try
+        {
+            return _repository.GetById(reservationId);
+        }
+        catch (Exception)
+        {
+        }
+
+        return null;
+    }
+
+    /// <summary>ЛР5, стан before: широке перехоплення, консоль у ядрі й throw ex.</summary>
+    /// <param name="reservationId">Номер бронювання.</param>
+    /// <param name="reason">Причина скасування.</param>
+    public void Cancel(int reservationId, string reason)
+    {
+        try
+        {
+            var reservation = _repository.GetById(reservationId);
+            reservation!.Cancel();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Щось пішло не так");
+#pragma warning disable CA2200 // стан before для ЛР5; виправляється в завданні 5
+            throw ex;
+#pragma warning restore CA2200
+        }
+    }
+
+    /// <summary>ЛР5, стан before: при винятку файл лишається відкритим.</summary>
+    /// <param name="path">Шлях до файлу звіту.</param>
+    /// <param name="reservation">Бронювання.</param>
+    public void ExportReport(string path, Reservation reservation)
+    {
+        var writer = new StreamWriter(path);
+        writer.WriteLine($"Бронювання {reservation.Id}");
+        writer.WriteLine(TotalOf(reservation));
+        writer.Close();
+    }
 }

@@ -1,5 +1,6 @@
 using CarRental.Core.Abstractions;
 using CarRental.Core.Domain;
+using CarRental.Core.Errors;
 
 namespace CarRental.Core.Services;
 
@@ -48,24 +49,24 @@ public sealed class ReservationService
         return total;
     }
 
-    /// <summary>ЛР5, стан before: ядро саме розбирає рядки з консолі.</summary>
+    /// <summary>Додає перевірену позицію до чернетки бронювання.</summary>
     /// <param name="reservationId">Номер бронювання.</param>
-    /// <param name="plate">Державний номер.</param>
-    /// <param name="startDate">Дата видачі рядком.</param>
-    /// <param name="endDate">Дата повернення рядком.</param>
-    /// <param name="dailyRate">Ставка за добу рядком.</param>
-    public void AddLine(
-        int reservationId,
-        string plate,
-        string startDate,
-        string endDate,
-        string dailyRate)
+    /// <param name="line">Позиція, уже розібрана й перевірена на барикаді.</param>
+    public void AddLine(int reservationId, ReservationDay line)
     {
-        var reservation = _repository.GetById(reservationId);
-        var start = DateOnly.Parse(startDate);
-        var end = DateOnly.Parse(endDate);
-        var rate = decimal.Parse(dailyRate);
-        reservation!.AddLine(new ReservationDay(plate, start, end, rate));
+        ArgumentNullException.ThrowIfNull(line);
+        Reservation reservation = _repository.GetById(reservationId)
+            ?? throw new DomainRuleException(
+                "reservation.exists",
+                $"Бронювання № {reservationId} не знайдено.");
+        if (reservation.Status != ReservationStatus.Draft)
+        {
+            throw new DomainRuleException(
+                "reservation.editable",
+                $"Бронювання № {reservationId} у стані {reservation.Status} не редагується.");
+        }
+
+        reservation.AddLine(line);
     }
 
     /// <summary>ЛР5, стан before: коди повернення без назв і сенсу.</summary>

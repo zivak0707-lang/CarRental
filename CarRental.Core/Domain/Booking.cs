@@ -45,7 +45,7 @@ public class Booking
     /// <summary>Найкоротша допустима довжина імені клієнта.</summary>
     private const int MinCustomerNameLength = 3;
 
-    private readonly List<string[]> _lines = new List<string[]>();
+    private readonly List<(string Plate, int Days, decimal DailyRate)> _lines = new();
 
     /// <summary>
     /// Створює нове бронювання на вказаного клієнта.
@@ -108,11 +108,7 @@ public class Booking
     /// <param name="dailyRate">Ставка за добу, грн.</param>
     public void AddLine(string plate, int days, decimal dailyRate)
     {
-        string[] line = new string[3];
-        line[0] = plate;
-        line[1] = days.ToString();
-        line[2] = dailyRate.ToString();
-        _lines.Add(line);
+        _lines.Add((plate, days, dailyRate));
     }
 
     /// <summary>
@@ -128,9 +124,7 @@ public class Booking
         int lineCount = 0;
         for (int i = 0; i < _lines.Count; i++)
         {
-            int days = int.Parse(_lines[i][1]);
-            decimal dailyRate = decimal.Parse(_lines[i][2]);
-            total += days * dailyRate;
+            total += _lines[i].Days * _lines[i].DailyRate;
             lineCount = lineCount + 1;
         }
 
@@ -222,11 +216,11 @@ public class Booking
         string report = string.Empty;
         for (int i = 0; i < _lines.Count; i++)
         {
-            report = report + "Авто: " + _lines[i][0]
-                + "; діб: " + _lines[i][1]
-                + "; ставка: " + _lines[i][2]
+            report = report + "Авто: " + _lines[i].Plate
+                + "; діб: " + _lines[i].Days
+                + "; ставка: " + _lines[i].DailyRate
                 + "; сума: "
-                + (int.Parse(_lines[i][1]) * decimal.Parse(_lines[i][2]))
+                + (_lines[i].Days * _lines[i].DailyRate)
                 + "\n";
         }
 

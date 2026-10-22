@@ -1,6 +1,8 @@
 using System.Text;
+using CarRental.App.Input;
 using CarRental.Core.Abstractions;
 using CarRental.Core.Domain;
+using CarRental.Core.Errors;
 using CarRental.Core.Notifications;
 using CarRental.Core.Pricing;
 using CarRental.Core.Rentals;
@@ -45,13 +47,19 @@ var notifier = new TextWriterNotifier(Console.Out);
 var service = new ReservationService(repository, pricing, notifier);
 
 var reservation = new Reservation(1, renter.Id, DateOnly.FromDateTime(DateTime.Today));
-reservation.AddLine(new ReservationDay(
-    "AA1234KI",
-    new DateOnly(2026, 11, 2),
-    new DateOnly(2026, 11, 4),
-    250m));
-reservation.Confirm();
 service.Place(reservation);
+
+// ЛР5. Барикада: рядки розбирає застосунок, ядро отримує готовий ReservationDay
+Result<ReservationDay> parsed =
+    ReservationDayParser.Parse("AA1234KI", "02.11.2026", "04.11.2026", "250");
+if (!parsed.IsSuccess)
+{
+    Console.WriteLine($"Помилка вводу: {parsed.Error}");
+    return;
+}
+
+service.AddLine(reservation.Id, parsed.Value!);
+reservation.Confirm();
 
 Console.WriteLine($"Сума: {service.TotalOf(reservation):0.00}");
 Console.Write(ReservationCsvReport.BuildCsv(repository.GetAll()));

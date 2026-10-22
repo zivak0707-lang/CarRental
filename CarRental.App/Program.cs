@@ -72,6 +72,7 @@ static void RunApplication(ILoggerFactory loggerFactory)
         notifier,
         loggerFactory.CreateLogger<ReservationService>());
 
+    using var audit = new FileAuditLog("audit.log");
     var reservation = new Reservation(1, renter.Id, DateOnly.FromDateTime(DateTime.Today));
     service.Place(reservation);
     service.AddLine(reservation.Id, line);
@@ -80,6 +81,11 @@ static void RunApplication(ILoggerFactory loggerFactory)
     decimal total = service.TotalOf(reservation);
     Console.WriteLine($"Сума: {total:0.00}");
     service.Pay(reservation.Id, total + 25m);
+    audit.Write("reservation.paid", reservation.Id);
+
+    Directory.CreateDirectory("reports");
+    service.ExportReport(Path.Combine("reports", $"reservation-{reservation.Id}.txt"), reservation);
+    audit.Write("report.exported", reservation.Id);
     Console.Write(ReservationCsvReport.BuildCsv(repository.GetAll()));
 
     try

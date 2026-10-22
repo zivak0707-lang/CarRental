@@ -141,14 +141,25 @@ public sealed class ReservationService
         _log.LogInformation("Бронювання скасовано, причина: {Reason}", reason);
     }
 
-    /// <summary>ЛР5, стан before: при винятку файл лишається відкритим.</summary>
+    /// <summary>Зберігає короткий звіт; потік закривається навіть при винятку.</summary>
     /// <param name="path">Шлях до файлу звіту.</param>
     /// <param name="reservation">Бронювання.</param>
     public void ExportReport(string path, Reservation reservation)
     {
-        var writer = new StreamWriter(path);
-        writer.WriteLine($"Бронювання {reservation.Id}");
-        writer.WriteLine(TotalOf(reservation));
-        writer.Close();
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        ArgumentNullException.ThrowIfNull(reservation);
+        try
+        {
+            using var writer = new StreamWriter(path);
+            writer.WriteLine($"Бронювання {reservation.Id}");
+            writer.WriteLine(TotalOf(reservation));
+        }
+        catch (IOException ex)
+        {
+            _log.LogError(ex, "Не вдалося зберегти звіт у {Path}", path);
+            throw;
+        }
+
+        _log.LogInformation("Звіт збережено у {Path}", path);
     }
 }

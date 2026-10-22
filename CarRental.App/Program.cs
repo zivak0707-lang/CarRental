@@ -1,6 +1,7 @@
 using System.Text;
 using CarRental.Core.Abstractions;
 using CarRental.Core.Domain;
+using CarRental.Core.Notifications;
 using CarRental.Core.Pricing;
 using CarRental.Core.Rentals;
 using CarRental.Core.Reporting;
@@ -26,20 +27,34 @@ new RentalReportPrinter(Console.Out).Print(report);
 
 // ЛР4. Композиційний корінь: єдине місце, де створюються конкретні реалізації
 Console.WriteLine();
-var repository = new InMemoryReservationRepository();
-IPricingPolicy pricing = new DiscountPricingPolicy(0.05m);
-var service = new ReservationService(repository, pricing);
+var policies = new Dictionary<string, IPricingPolicy>
+{
+    ["regular"] = new DiscountPricingPolicy(0.05m),
+    ["vip"] = new VipPricingPolicy(),
+    ["staff"] = new DiscountPricingPolicy(0.30m),
+};
 
 var renter = new Renter(100, "Іваненко Петро", "petro@example.com") { IsRegular = true };
+string renterType = renter.IsRegular ? "regular" : "new";
+IPricingPolicy pricing = policies.TryGetValue(renterType, out IPricingPolicy? found)
+    ? found
+    : new StandardPricingPolicy();
+
+var repository = new InMemoryReservationRepository();
+var notifier = new TextWriterNotifier(Console.Out);
+var service = new ReservationService(repository, pricing, notifier);
+
 var reservation = new Reservation(1, renter.Id, DateOnly.FromDateTime(DateTime.Today));
 reservation.AddLine(new ReservationDay(
     "AA1234KI",
     new DateOnly(2026, 11, 2),
     new DateOnly(2026, 11, 4),
     250m));
+reservation.Confirm();
 service.Place(reservation);
 
 Console.WriteLine($"Сума: {service.TotalOf(reservation):0.00}");
+Console.Write(ReservationCsvReport.BuildCsv(repository.GetAll()));
 
 static TotalRequest BuildSampleRequest()
 {

@@ -4,6 +4,7 @@ using CarRental.Core.Notifications;
 using CarRental.Core.Pricing;
 using CarRental.Core.Services;
 using CarRental.Core.Storage;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace CarRental.Tests;
 
@@ -42,5 +43,6 @@ public class ErrorHandlingTests
         new(
             new InMemoryReservationRepository(),
             new StandardPricingPolicy(),
-            new TextWriterNotifier(TextWriter.Null));
+                 new TextWriterNotifier(TextWriter.Null),
+                 NullLogger<ReservationService>.Instance);
 }

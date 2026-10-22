@@ -8,32 +8,44 @@ using CarRental.Core.Pricing;
 using CarRental.Core.Reporting;
 using CarRental.Core.Services;
 using CarRental.Core.Storage;
+using Microsoft.Extensions.Logging;
 
 Console.OutputEncoding = Encoding.UTF8;
+
+using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+{
+    builder.AddSimpleConsole(options =>
+    {
+        options.TimestampFormat = "HH:mm:ss ";
+        options.IncludeScopes = true;
+    });
+    builder.SetMinimumLevel(LogLevel.Debug);
+});
+ILogger log = loggerFactory.CreateLogger("CarRental.App");
 
 // Верхній обробник: єдине місце, де дозволено catch (Exception)
 try
 {
-    RunApplication();
+    RunApplication(loggerFactory);
     return 0;
 }
 catch (DomainRuleException ex)
 {
-    Console.Error.WriteLine($"Правило {ex.Rule}: {ex.Message}");
+    log.LogWarning("Правило {Rule}: {Message}", ex.Rule, ex.Message);
     return 1;
 }
 catch (IOException ex)
 {
-    Console.Error.WriteLine($"Помилка середовища: {ex.Message}");
+    log.LogError(ex, "Помилка середовища");
     return 3;
 }
 catch (Exception ex)
 {
-    Console.Error.WriteLine($"Непередбачений збій: {ex}");
+    log.LogCritical(ex, "Непередбачений збій");
     return 2;
 }
 
-static void RunApplication()
+static void RunApplication(ILoggerFactory loggerFactory)
 {
     // Барикада: поки ввід некоректний, пояснюємо помилку й питаємо знову
     ReservationDay line = ReadReservationDay();
@@ -54,7 +66,11 @@ static void RunApplication()
 
     var repository = new InMemoryReservationRepository();
     var notifier = new TextWriterNotifier(Console.Out);
-    var service = new ReservationService(repository, pricing, notifier);
+    var service = new ReservationService(
+        repository,
+        pricing,
+        notifier,
+        loggerFactory.CreateLogger<ReservationService>());
 
     var reservation = new Reservation(1, renter.Id, DateOnly.FromDateTime(DateTime.Today));
     service.Place(reservation);

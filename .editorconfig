@@ -80,3 +80,8 @@ dotnet_diagnostic.SA1602.severity = warning
 dotnet_diagnostic.SA1611.severity = warning
 dotnet_diagnostic.SA1615.severity = warning
 dotnet_diagnostic.IDE0055.severity = warning
+
+# CA1848 (LoggerMessage замість LogInformation): методичка ЛР5 вимагає виклики
+# LogDebug/LogInformation з іменованими заповнювачами; для навчального консольного
+# застосунку виграш у продуктивності від генератора LoggerMessage не потрібен
+dotnet_diagnostic.CA1848.severity = none

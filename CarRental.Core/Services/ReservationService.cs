@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CarRental.Core.Abstractions;
 using CarRental.Core.Domain;
 using CarRental.Core.Errors;
@@ -46,6 +47,8 @@ public sealed class ReservationService
             total += _pricing.PriceOf(line);
         }
 
+        Debug.Assert(total >= 0m, "Сума бронювання не може бути від'ємною.");
+
         return total;
     }
 
@@ -69,30 +72,31 @@ public sealed class ReservationService
         reservation.AddLine(line);
     }
 
-    /// <summary>ЛР5, стан before: коди повернення без назв і сенсу.</summary>
+    /// <summary>Оплата: після повної оплати автомобіль видається (Confirmed → Active).</summary>
     /// <param name="reservationId">Номер бронювання.</param>
     /// <param name="amount">Сплачена сума, грн.</param>
-    /// <returns>0 — успіх; -1, -2, -3 — помилки.</returns>
-    public int Pay(int reservationId, decimal amount)
+    public void Pay(int reservationId, decimal amount)
     {
-        var reservation = _repository.GetById(reservationId);
-        if (reservation == null)
-        {
-            return -1;
-        }
-
+        Reservation reservation = _repository.GetById(reservationId)
+            ?? throw new DomainRuleException(
+                "reservation.exists",
+                $"Бронювання № {reservationId} не знайдено.");
         if (reservation.Status != ReservationStatus.Confirmed)
         {
-            return -2;
+            throw new DomainRuleException(
+                "reservation.payable",
+                $"Стан {reservation.Status} не дозволяє оплату бронювання № {reservationId}.");
         }
 
-        if (amount < TotalOf(reservation))
+        decimal total = TotalOf(reservation);
+        if (amount < total)
         {
-            return -3;
+            throw new DomainRuleException(
+                "reservation.amount",
+                $"Сплачено {amount:0.00} грн, а треба {total:0.00} грн.");
         }
 
         reservation.PickUp();
-        return 0;
     }
 
     /// <summary>ЛР5, стан before: проковтнутий виняток і повернення null.</summary>

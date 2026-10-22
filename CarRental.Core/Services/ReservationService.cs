@@ -58,10 +58,7 @@ public sealed class ReservationService
     public void AddLine(int reservationId, ReservationDay line)
     {
         ArgumentNullException.ThrowIfNull(line);
-        Reservation reservation = _repository.GetById(reservationId)
-            ?? throw new DomainRuleException(
-                "reservation.exists",
-                $"Бронювання № {reservationId} не знайдено.");
+        Reservation reservation = Load(reservationId);
         if (reservation.Status != ReservationStatus.Draft)
         {
             throw new DomainRuleException(
@@ -77,16 +74,7 @@ public sealed class ReservationService
     /// <param name="amount">Сплачена сума, грн.</param>
     public void Pay(int reservationId, decimal amount)
     {
-        Reservation reservation = _repository.GetById(reservationId)
-            ?? throw new DomainRuleException(
-                "reservation.exists",
-                $"Бронювання № {reservationId} не знайдено.");
-        if (reservation.Status != ReservationStatus.Confirmed)
-        {
-            throw new DomainRuleException(
-                "reservation.payable",
-                $"Стан {reservation.Status} не дозволяє оплату бронювання № {reservationId}.");
-        }
+        Reservation reservation = Load(reservationId);
 
         decimal total = TotalOf(reservation);
         if (amount < total)
@@ -99,38 +87,32 @@ public sealed class ReservationService
         reservation.PickUp();
     }
 
-    /// <summary>ЛР5, стан before: проковтнутий виняток і повернення null.</summary>
+    /// <summary>Знаходить бронювання або кидає DomainRuleException, якщо його немає.</summary>
     /// <param name="reservationId">Номер бронювання.</param>
-    /// <returns>Бронювання або null.</returns>
-    public Reservation? Load(int reservationId)
-    {
-        try
-        {
-            return _repository.GetById(reservationId);
-        }
-        catch (Exception)
-        {
-        }
+    /// <returns>Знайдене бронювання (ніколи не null).</returns>
+    public Reservation Load(int reservationId) =>
+        _repository.GetById(reservationId)
+        ?? throw new DomainRuleException(
+            "reservation.exists",
+            $"Бронювання № {reservationId} не знайдено.");
 
-        return null;
-    }
-
-    /// <summary>ЛР5, стан before: широке перехоплення, консоль у ядрі й throw ex.</summary>
+    /// <summary>Скасовує бронювання; дозволено лише до видачі автомобіля.</summary>
     /// <param name="reservationId">Номер бронювання.</param>
-    /// <param name="reason">Причина скасування.</param>
+    /// <param name="reason">Причина скасування, не порожня.</param>
     public void Cancel(int reservationId, string reason)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(reason);
+        Reservation reservation = Load(reservationId);
         try
         {
-            var reservation = _repository.GetById(reservationId);
-            reservation!.Cancel();
+            reservation.Cancel();
         }
-        catch (Exception ex)
+        catch (InvalidOperationException ex)
         {
-            Console.WriteLine("Щось пішло не так");
-#pragma warning disable CA2200 // стан before для ЛР5; виправляється в завданні 5
-            throw ex;
-#pragma warning restore CA2200
+            throw new DomainRuleException(
+                "reservation.cancellable",
+                $"Бронювання № {reservationId} у стані {reservation.Status} скасувати не можна.",
+                ex);
         }
     }
 

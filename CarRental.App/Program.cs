@@ -66,6 +66,15 @@ static void RunApplication()
     service.Pay(reservation.Id, total + 25m);
     Console.Write(ReservationCsvReport.BuildCsv(repository.GetAll()));
 
+    try
+    {
+        service.Cancel(reservation.Id, "клієнт передумав");
+    }
+    catch (DomainRuleException ex)
+    {
+        Console.WriteLine($"Відмова: {ex.Message}");
+    }
+
     string[] importRows = { "3", "два", "-1", "7" };
     Console.WriteLine(
         $"Імпорт: коректних значень діб {ImportRows.CountValidDays(importRows)} "

@@ -5,79 +5,93 @@ using CarRental.Core.Domain;
 using CarRental.Core.Errors;
 using CarRental.Core.Notifications;
 using CarRental.Core.Pricing;
-using CarRental.Core.Rentals;
 using CarRental.Core.Reporting;
 using CarRental.Core.Services;
 using CarRental.Core.Storage;
 
 Console.OutputEncoding = Encoding.UTF8;
 
-var booking = new Booking("B-1001", "Іваненко");
-booking.AddLine("AA1234AA", 3, 250m);
-booking.AddLine("KA5678KA", 12, 90m);
-Console.WriteLine(booking.CalculateTotal(false));
-Console.WriteLine(booking.CalculateTotal(true));
-Console.WriteLine(booking.IsValid());
-Console.WriteLine(booking.TryChangeStatus(1));
-Console.Write(booking.BuildReport());
-
-Console.WriteLine();
-TotalRequest request = BuildSampleRequest();
-TotalResult result = RentalTotalCalculator.Calculate(request);
-string report = RentalReport.TextOf(request, result);
-new RentalReportPrinter(Console.Out).Print(report);
-
-// ЛР4. Композиційний корінь: єдине місце, де створюються конкретні реалізації
-Console.WriteLine();
-var policies = new Dictionary<string, IPricingPolicy>
+// Верхній обробник: єдине місце, де дозволено catch (Exception)
+try
 {
-    ["regular"] = new DiscountPricingPolicy(0.05m),
-    ["vip"] = new VipPricingPolicy(),
-    ["staff"] = new DiscountPricingPolicy(0.30m),
-};
-
-var renter = new Renter(100, "Іваненко Петро", "petro@example.com") { IsRegular = true };
-string renterType = renter.IsRegular ? "regular" : "new";
-IPricingPolicy pricing = policies.TryGetValue(renterType, out IPricingPolicy? found)
-    ? found
-    : new StandardPricingPolicy();
-
-var repository = new InMemoryReservationRepository();
-var notifier = new TextWriterNotifier(Console.Out);
-var service = new ReservationService(repository, pricing, notifier);
-
-var reservation = new Reservation(1, renter.Id, DateOnly.FromDateTime(DateTime.Today));
-service.Place(reservation);
-
-// ЛР5. Барикада: рядки розбирає застосунок, ядро отримує готовий ReservationDay
-Result<ReservationDay> parsed =
-    ReservationDayParser.Parse("AA1234KI", "02.11.2026", "04.11.2026", "250");
-if (!parsed.IsSuccess)
+    RunApplication();
+    return 0;
+}
+catch (DomainRuleException ex)
 {
-    Console.WriteLine($"Помилка вводу: {parsed.Error}");
-    return;
+    Console.Error.WriteLine($"Правило {ex.Rule}: {ex.Message}");
+    return 1;
+}
+catch (IOException ex)
+{
+    Console.Error.WriteLine($"Помилка середовища: {ex.Message}");
+    return 3;
+}
+catch (Exception ex)
+{
+    Console.Error.WriteLine($"Непередбачений збій: {ex}");
+    return 2;
 }
 
-service.AddLine(reservation.Id, parsed.Value!);
-reservation.Confirm();
-
-Console.WriteLine($"Сума: {service.TotalOf(reservation):0.00}");
-Console.Write(ReservationCsvReport.BuildCsv(repository.GetAll()));
-
-static TotalRequest BuildSampleRequest()
+static void RunApplication()
 {
-    List<RentalLine> lines = new()
+    // Барикада: поки ввід некоректний, пояснюємо помилку й питаємо знову
+    ReservationDay line = ReadReservationDay();
+
+    // Композиційний корінь: єдине місце, де створюються конкретні реалізації
+    var policies = new Dictionary<string, IPricingPolicy>
     {
-        new RentalLine { Plate = "AA1234KI", Days = 12, DailyRate = 100m },
-        new RentalLine { Plate = "KA5678BB", Days = 1, DailyRate = 250m },
+        ["regular"] = new DiscountPricingPolicy(0.05m),
+        ["vip"] = new VipPricingPolicy(),
+        ["staff"] = new DiscountPricingPolicy(0.30m),
     };
 
-    return new TotalRequest(
-        RentalId: 1,
-        Customer: new CustomerInfo("Іваненко", "i@ex.com", true),
-        Lines: lines,
-        CreatedAt: new DateOnly(2026, 3, 10),
-        CouponCode: null,
-        Status: RentalStatus.New,
-        DeliveryPrice: 60m);
+    var renter = new Renter(100, "Іваненко Петро", "petro@example.com") { IsRegular = true };
+    string renterType = renter.IsRegular ? "regular" : "new";
+    IPricingPolicy pricing = policies.TryGetValue(renterType, out IPricingPolicy? found)
+        ? found
+        : new StandardPricingPolicy();
+
+    var repository = new InMemoryReservationRepository();
+    var notifier = new TextWriterNotifier(Console.Out);
+    var service = new ReservationService(repository, pricing, notifier);
+
+    var reservation = new Reservation(1, renter.Id, DateOnly.FromDateTime(DateTime.Today));
+    service.Place(reservation);
+    service.AddLine(reservation.Id, line);
+    reservation.Confirm();
+
+    decimal total = service.TotalOf(reservation);
+    Console.WriteLine($"Сума: {total:0.00}");
+    service.Pay(reservation.Id, total + 25m);
+    Console.Write(ReservationCsvReport.BuildCsv(repository.GetAll()));
+
+    string[] importRows = { "3", "два", "-1", "7" };
+    Console.WriteLine(
+        $"Імпорт: коректних значень діб {ImportRows.CountValidDays(importRows)} "
+        + $"з {importRows.Length}");
+}
+
+static ReservationDay ReadReservationDay()
+{
+    while (true)
+    {
+        Result<ReservationDay> parsed = ReservationDayParser.Parse(
+            Ask("Держномер: "),
+            Ask("Дата видачі (дд.мм.рррр): "),
+            Ask("Дата повернення (дд.мм.рррр): "),
+            Ask("Ставка за добу, грн: "));
+        if (parsed.IsSuccess)
+        {
+            return parsed.Value!;
+        }
+
+        Console.WriteLine($"Помилка вводу: {parsed.Error}");
+    }
+}
+
+static string Ask(string prompt)
+{
+    Console.Write(prompt);
+    return Console.ReadLine() ?? throw new EndOfStreamException("Потік введення закрито.");
 }

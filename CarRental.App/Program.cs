@@ -1,7 +1,11 @@
 using System.Text;
+using CarRental.Core.Abstractions;
 using CarRental.Core.Domain;
+using CarRental.Core.Pricing;
 using CarRental.Core.Rentals;
 using CarRental.Core.Reporting;
+using CarRental.Core.Services;
+using CarRental.Core.Storage;
 
 Console.OutputEncoding = Encoding.UTF8;
 
@@ -19,6 +23,23 @@ TotalRequest request = BuildSampleRequest();
 TotalResult result = RentalTotalCalculator.Calculate(request);
 string report = RentalReport.TextOf(request, result);
 new RentalReportPrinter(Console.Out).Print(report);
+
+// ЛР4. Композиційний корінь: єдине місце, де створюються конкретні реалізації
+Console.WriteLine();
+var repository = new InMemoryReservationRepository();
+IPricingPolicy pricing = new DiscountPricingPolicy(0.05m);
+var service = new ReservationService(repository, pricing);
+
+var renter = new Renter(100, "Іваненко Петро", "petro@example.com") { IsRegular = true };
+var reservation = new Reservation(1, renter.Id, DateOnly.FromDateTime(DateTime.Today));
+reservation.AddLine(new ReservationDay(
+    "AA1234KI",
+    new DateOnly(2026, 11, 2),
+    new DateOnly(2026, 11, 4),
+    250m));
+service.Place(reservation);
+
+Console.WriteLine($"Сума: {service.TotalOf(reservation):0.00}");
 
 static TotalRequest BuildSampleRequest()
 {

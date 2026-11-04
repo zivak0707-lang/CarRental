@@ -31,36 +31,14 @@ public class LegacyRentalProcessor
 
         _log.Add("ok " + reservationId);
 
-        _tmpSum = 0m;
-        for (int i = 0; i < lines!.Count; i++)
-        {
-            _tmpSum += lines[i].Days * lines[i].DailyRate;
-        }
-
-        _tmpDiscount = 0m;
-        if (renterKind == RenterKind.Vip)
-        {
-            _tmpDiscount = _tmpSum * PricingRules.VipRate;
-            if (_tmpDiscount > PricingRules.MaxDiscount) _tmpDiscount = PricingRules.MaxDiscount;
-        }
-        else if (renterKind == RenterKind.Staff)
-        {
-            _tmpDiscount = _tmpSum * PricingRules.StaffRate;
-            if (_tmpDiscount > PricingRules.MaxDiscount) _tmpDiscount = PricingRules.MaxDiscount;
-        }
-        else if (renterDone > PricingRules.LoyalRentals)
-        {
-            _tmpDiscount = _tmpSum * PricingRules.LoyalRate;
-            if (_tmpDiscount > PricingRules.MaxDiscount) _tmpDiscount = PricingRules.MaxDiscount;
-        }
-
-        decimal ship = 0m;
-        if (_tmpSum - _tmpDiscount < PricingRules.FreeShipFrom) ship = PricingRules.ShipCost;
+        _tmpSum = Subtotal(lines!);
+        _tmpDiscount = DiscountOf(_tmpSum, renterKind, renterDone);
+        decimal ship = ShippingOf(_tmpSum - _tmpDiscount);
         decimal total = _tmpSum - _tmpDiscount + ship;
 
         string txt = "Документ #" + reservationId + "\n";
         txt += "Клієнт: " + renterName + "\n";
-        for (int i = 0; i < lines.Count; i++)
+        for (int i = 0; i < lines!.Count; i++)
         {
             txt += lines[i].Plate + " x" + lines[i].Days + " = " +
                 (lines[i].Days * lines[i].DailyRate)
@@ -79,6 +57,31 @@ public class LegacyRentalProcessor
         }
         return txt;
     }
+
+    private static decimal Subtotal(List<CarLine> lines)
+    {
+        decimal sum = 0m;
+        foreach (CarLine line in lines)
+        {
+            sum += line.Days * line.DailyRate;
+        }
+
+        return sum;
+    }
+
+    private static decimal DiscountOf(decimal subtotal, RenterKind kind, int doneCount)
+    {
+        decimal rate = kind switch
+        {
+            RenterKind.Vip => PricingRules.VipRate,
+            RenterKind.Staff => PricingRules.StaffRate,
+            _ => doneCount > PricingRules.LoyalRentals ? PricingRules.LoyalRate : 0m,
+        };
+        return Math.Min(subtotal * rate, PricingRules.MaxDiscount);
+    }
+
+    private static decimal ShippingOf(decimal payable) =>
+        payable < PricingRules.FreeShipFrom ? PricingRules.ShipCost : 0m;
 
     private static string? Validate(List<CarLine>? lines,
         DocumentState state, string? renterMail)

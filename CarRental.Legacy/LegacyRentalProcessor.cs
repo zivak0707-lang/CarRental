@@ -112,30 +112,10 @@ public class LegacyRentalProcessor
     public decimal Preview(RenterKind renterKind, int renterDone,
         List<CarLine> lines)
     {
-        decimal s = 0m;
-        foreach (var it in lines)
-        {
-            s += it.Days * it.DailyRate;
-        }
-        decimal d = 0m;
-        if (renterKind == RenterKind.Vip)
-        {
-            d = s * PricingRules.VipRate;
-            if (d > PricingRules.MaxDiscount) d = PricingRules.MaxDiscount;
-        }
-        else if (renterKind == RenterKind.Staff)
-        {
-            d = s * PricingRules.StaffRate;
-            if (d > PricingRules.MaxDiscount) d = PricingRules.MaxDiscount;
-        }
-        else if (renterDone > PricingRules.LoyalRentals)
-        {
-            d = s * PricingRules.LoyalRate;
-            if (d > PricingRules.MaxDiscount) d = PricingRules.MaxDiscount;
-        }
-        decimal sh = 0m;
-        if (s - d < PricingRules.FreeShipFrom) sh = PricingRules.ShipCost;
-        return s - d + sh;
+        decimal subtotal = Subtotal(lines);
+        decimal discount = DiscountOf(subtotal, renterKind, renterDone);
+        decimal payable = subtotal - discount;
+        return payable + ShippingOf(payable);
     }
 
     public string DescribeClient(Renter c)

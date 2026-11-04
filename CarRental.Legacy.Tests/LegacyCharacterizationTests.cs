@@ -27,9 +27,8 @@ public class LegacyCharacterizationTests
         };
         var sut = new LegacyRentalProcessor();
 
-        string actual = sut.Handle(1001, 7, "Іван", mail,
-            RenterKind.Regular, 0, lines, state, "UAH",
-            new DateTime(2026, 3, 1), false);
+        string actual = sut.Handle(new RentalRequest(
+            1001, Ivan(RenterKind.Regular, 0, mail), lines, state, "UAH", false));
 
         Assert.Equal(expected, actual);
     }
@@ -39,9 +38,8 @@ public class LegacyCharacterizationTests
     {
         var sut = new LegacyRentalProcessor();
 
-        string report = sut.Handle(1001, 7, "Іван", "a@b.c",
-            RenterKind.Vip, 3, TwoLines(), DocumentState.New, "UAH",
-            new DateTime(2026, 3, 1), false);
+        string report = sut.Handle(new RentalRequest(
+            1001, Ivan(RenterKind.Vip, 3, "a@b.c"), TwoLines(), DocumentState.New, "UAH", false));
 
         string expected =
             "Документ #1001\n" +
@@ -63,7 +61,7 @@ public class LegacyCharacterizationTests
     {
         var sut = new LegacyRentalProcessor();
 
-        decimal total = sut.Preview(kind, done, TwoLines());
+        decimal total = sut.Preview(Ivan(kind, done, "a@b.c"), TwoLines());
 
         Assert.Equal(expected, total);
     }
@@ -77,7 +75,7 @@ public class LegacyCharacterizationTests
             new CarLine { Plate = "AA1234KI", Days = 1, DailyRate = 1000m },
         };
 
-        decimal total = sut.Preview(RenterKind.Regular, 0, lines);
+        decimal total = sut.Preview(Ivan(RenterKind.Regular, 0, "a@b.c"), lines);
 
         Assert.Equal(1000m, total);
     }
@@ -91,7 +89,7 @@ public class LegacyCharacterizationTests
             new CarLine { Plate = "AA1234KI", Days = 10, DailyRate = 400m },
         };
 
-        decimal total = sut.Preview(RenterKind.Vip, 0, lines);
+        decimal total = sut.Preview(Ivan(RenterKind.Vip, 0, "a@b.c"), lines);
 
         Assert.Equal(3500m, total);
     }
@@ -116,6 +114,15 @@ public class LegacyCharacterizationTests
 
         Assert.Equal(expected, actual);
     }
+
+    private static Renter Ivan(RenterKind kind, int done, string mail) => new()
+    {
+        Id = 7,
+        Name = "Іван",
+        Email = mail,
+        Kind = kind,
+        DoneCount = done,
+    };
 
     private static List<CarLine> TwoLines() => new()
     {

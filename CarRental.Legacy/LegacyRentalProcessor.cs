@@ -17,48 +17,45 @@ public class LegacyRentalProcessor
     private decimal _tmpDiscount;
     private readonly List<string> _log = new();
 
-    public string Handle(int reservationId, int renterId,
-        string renterName, string? renterMail,
-        RenterKind renterKind, int renterDone,
-        List<CarLine>? lines, DocumentState state,
-        string currency, DateTime createdAt, bool sendMail)
+    public string Handle(RentalRequest req)
     {
-        string? error = Validate(lines, state, renterMail);
+        string? error = Validate(req);
         if (error != null)
         {
             return error;
         }
 
-        _log.Add("ok " + reservationId);
+        _log.Add("ok " + req.ReservationId);
+        IReadOnlyList<CarLine> lines = req.Lines!;
 
-        _tmpSum = Subtotal(lines!);
-        _tmpDiscount = DiscountOf(_tmpSum, renterKind, renterDone);
+        _tmpSum = Subtotal(lines);
+        _tmpDiscount = DiscountOf(_tmpSum, req.Renter);
         decimal ship = ShippingOf(_tmpSum - _tmpDiscount);
         decimal total = _tmpSum - _tmpDiscount + ship;
 
-        string txt = "Документ #" + reservationId + "\n";
-        txt += "Клієнт: " + renterName + "\n";
-        for (int i = 0; i < lines!.Count; i++)
+        string txt = "Документ #" + req.ReservationId + "\n";
+        txt += "Клієнт: " + req.Renter.Name + "\n";
+        for (int i = 0; i < lines.Count; i++)
         {
             txt += lines[i].Plate + " x" + lines[i].Days + " = " +
                 (lines[i].Days * lines[i].DailyRate)
-                    .ToString("0.00") + " " + currency + "\n";
+                    .ToString("0.00") + " " + req.Currency + "\n";
         }
         txt += "Знижка: " + _tmpDiscount.ToString("0.00") +
-            " " + currency + "\n";
+            " " + req.Currency + "\n";
         txt += "Доставка: " + ship.ToString("0.00") +
-            " " + currency + "\n";
+            " " + req.Currency + "\n";
         txt += "Разом: " + total.ToString("0.00") +
-            " " + currency + "\n";
+            " " + req.Currency + "\n";
 
-        if (sendMail)
+        if (req.SendMail)
         {
-            _log.Add("mail -> " + renterMail);
+            _log.Add("mail -> " + req.Renter.Email);
         }
         return txt;
     }
 
-    private static decimal Subtotal(List<CarLine> lines)
+    private static decimal Subtotal(IReadOnlyList<CarLine> lines)
     {
         decimal sum = 0m;
         foreach (CarLine line in lines)
@@ -69,13 +66,13 @@ public class LegacyRentalProcessor
         return sum;
     }
 
-    private static decimal DiscountOf(decimal subtotal, RenterKind kind, int doneCount)
+    private static decimal DiscountOf(decimal subtotal, Renter renter)
     {
-        decimal rate = kind switch
+        decimal rate = renter.Kind switch
         {
             RenterKind.Vip => PricingRules.VipRate,
             RenterKind.Staff => PricingRules.StaffRate,
-            _ => doneCount > PricingRules.LoyalRentals ? PricingRules.LoyalRate : 0m,
+            _ => renter.IsLoyal ? PricingRules.LoyalRate : 0m,
         };
         return Math.Min(subtotal * rate, PricingRules.MaxDiscount);
     }
@@ -83,25 +80,24 @@ public class LegacyRentalProcessor
     private static decimal ShippingOf(decimal payable) =>
         payable < PricingRules.FreeShipFrom ? PricingRules.ShipCost : 0m;
 
-    private static string? Validate(List<CarLine>? lines,
-        DocumentState state, string? renterMail)
+    private static string? Validate(RentalRequest req)
     {
-        if (lines is null)
+        if (req.Lines is null)
         {
             return "ERR: null";
         }
 
-        if (lines.Count == 0)
+        if (req.Lines.Count == 0)
         {
             return "ERR: empty";
         }
 
-        if (state is not (DocumentState.New or DocumentState.Paid))
+        if (req.State is not (DocumentState.New or DocumentState.Paid))
         {
             return "ERR: state";
         }
 
-        if (renterMail is null || !renterMail.Contains("@"))
+        if (!req.Renter.HasValidEmail)
         {
             return "ERR: mail";
         }
@@ -109,11 +105,10 @@ public class LegacyRentalProcessor
         return null;
     }
 
-    public decimal Preview(RenterKind renterKind, int renterDone,
-        List<CarLine> lines)
+    public decimal Preview(Renter renter, IReadOnlyList<CarLine> lines)
     {
         decimal subtotal = Subtotal(lines);
-        decimal discount = DiscountOf(subtotal, renterKind, renterDone);
+        decimal discount = DiscountOf(subtotal, renter);
         decimal payable = subtotal - discount;
         return payable + ShippingOf(payable);
     }

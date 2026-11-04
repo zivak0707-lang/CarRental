@@ -3,16 +3,6 @@ using System.Collections.Generic;
 
 namespace CarRental.Legacy;
 
-public class Renter
-{
-    public int Id;
-    public string Name = "";
-    public string Email = "";
-    public string Kind = "regular";
-    public int DoneCount;
-    public DateTime SinceUtc;
-}
-
 public class CarLine
 {
     public string Plate = "";
@@ -29,15 +19,15 @@ public class LegacyRentalProcessor
 
     public string Handle(int reservationId, int renterId,
         string renterName, string? renterMail,
-        string renterKind, int renterDone,
-        List<CarLine>? lines, string state,
+        RenterKind renterKind, int renterDone,
+        List<CarLine>? lines, DocumentState state,
         string currency, DateTime createdAt, bool sendMail)
     {
         if (lines != null)
         {
             if (lines.Count > 0)
             {
-                if (state == "new" || state == "paid")
+                if (state == DocumentState.New || state == DocumentState.Paid)
                 {
                     if (renterMail != null &&
                         renterMail.Contains("@"))
@@ -71,12 +61,12 @@ public class LegacyRentalProcessor
         }
 
         _tmpDiscount = 0m;
-        if (renterKind == "vip")
+        if (renterKind == RenterKind.Vip)
         {
             _tmpDiscount = _tmpSum * PricingRules.VipRate;
             if (_tmpDiscount > PricingRules.MaxDiscount) _tmpDiscount = PricingRules.MaxDiscount;
         }
-        else if (renterKind == "staff")
+        else if (renterKind == RenterKind.Staff)
         {
             _tmpDiscount = _tmpSum * PricingRules.StaffRate;
             if (_tmpDiscount > PricingRules.MaxDiscount) _tmpDiscount = PricingRules.MaxDiscount;
@@ -113,7 +103,7 @@ public class LegacyRentalProcessor
         return txt;
     }
 
-    public decimal Preview(string renterKind, int renterDone,
+    public decimal Preview(RenterKind renterKind, int renterDone,
         List<CarLine> lines)
     {
         decimal s = 0m;
@@ -122,12 +112,12 @@ public class LegacyRentalProcessor
             s += it.Days * it.DailyRate;
         }
         decimal d = 0m;
-        if (renterKind == "vip")
+        if (renterKind == RenterKind.Vip)
         {
             d = s * PricingRules.VipRate;
             if (d > PricingRules.MaxDiscount) d = PricingRules.MaxDiscount;
         }
-        else if (renterKind == "staff")
+        else if (renterKind == RenterKind.Staff)
         {
             d = s * PricingRules.StaffRate;
             if (d > PricingRules.MaxDiscount) d = PricingRules.MaxDiscount;
@@ -145,7 +135,7 @@ public class LegacyRentalProcessor
     public string DescribeClient(Renter c)
     {
         string s = c.Name.Trim().ToUpper();
-        if (c.Kind == "vip") s += " [VIP]";
+        if (c.Kind == RenterKind.Vip) s += " [VIP]";
         if (c.DoneCount > PricingRules.LoyalRentals) s += " [ЛОЯЛЬНИЙ]";
         s += " <" + c.Email.ToLower() + ">";
         int years = DateTime.Now.Year - c.SinceUtc.Year;

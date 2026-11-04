@@ -12,12 +12,12 @@ public class LegacyCharacterizationTests
     }
 
     [Theory]
-    [InlineData(null, "new", "a@b.c", "ERR: null")]
-    [InlineData("empty", "new", "a@b.c", "ERR: empty")]
-    [InlineData("two", "draft", "a@b.c", "ERR: state")]
-    [InlineData("two", "new", "no-mail", "ERR: mail")]
+    [InlineData(null, DocumentState.New, "a@b.c", "ERR: null")]
+    [InlineData("empty", DocumentState.New, "a@b.c", "ERR: empty")]
+    [InlineData("two", DocumentState.Draft, "a@b.c", "ERR: state")]
+    [InlineData("two", DocumentState.New, "no-mail", "ERR: mail")]
     public void Handle_BadInput_ReturnsErrorCode(
-        string? kindOfLines, string state, string mail, string expected)
+        string? kindOfLines, DocumentState state, string mail, string expected)
     {
         List<CarLine>? lines = kindOfLines switch
         {
@@ -28,7 +28,7 @@ public class LegacyCharacterizationTests
         var sut = new LegacyRentalProcessor();
 
         string actual = sut.Handle(1001, 7, "Іван", mail,
-            "regular", 0, lines, state, "UAH",
+            RenterKind.Regular, 0, lines, state, "UAH",
             new DateTime(2026, 3, 1), false);
 
         Assert.Equal(expected, actual);
@@ -40,7 +40,7 @@ public class LegacyCharacterizationTests
         var sut = new LegacyRentalProcessor();
 
         string report = sut.Handle(1001, 7, "Іван", "a@b.c",
-            "vip", 3, TwoLines(), "new", "UAH",
+            RenterKind.Vip, 3, TwoLines(), DocumentState.New, "UAH",
             new DateTime(2026, 3, 1), false);
 
         string expected =
@@ -55,11 +55,11 @@ public class LegacyCharacterizationTests
     }
 
     [Theory]
-    [InlineData("regular", 0, 760)]
-    [InlineData("vip", 0, 655)]
-    [InlineData("staff", 0, 550)]
-    [InlineData("regular", 11, 725)]
-    public void Preview_ByKind_ReturnsTotal(string kind, int done, decimal expected)
+    [InlineData(RenterKind.Regular, 0, 760)]
+    [InlineData(RenterKind.Vip, 0, 655)]
+    [InlineData(RenterKind.Staff, 0, 550)]
+    [InlineData(RenterKind.Regular, 11, 725)]
+    public void Preview_ByKind_ReturnsTotal(RenterKind kind, int done, decimal expected)
     {
         var sut = new LegacyRentalProcessor();
 
@@ -77,7 +77,7 @@ public class LegacyCharacterizationTests
             new CarLine { Plate = "AA1234KI", Days = 1, DailyRate = 1000m },
         };
 
-        decimal total = sut.Preview("regular", 0, lines);
+        decimal total = sut.Preview(RenterKind.Regular, 0, lines);
 
         Assert.Equal(1000m, total);
     }
@@ -91,7 +91,7 @@ public class LegacyCharacterizationTests
             new CarLine { Plate = "AA1234KI", Days = 10, DailyRate = 400m },
         };
 
-        decimal total = sut.Preview("vip", 0, lines);
+        decimal total = sut.Preview(RenterKind.Vip, 0, lines);
 
         Assert.Equal(3500m, total);
     }
@@ -103,7 +103,7 @@ public class LegacyCharacterizationTests
         {
             Name = "  іван  ",
             Email = "IVAN@MAIL.COM",
-            Kind = "vip",
+            Kind = RenterKind.Vip,
             DoneCount = 12,
             SinceUtc = new DateTime(2020, 1, 1),
         };

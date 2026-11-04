@@ -17,4 +17,21 @@ public sealed class Renter
     public bool HasValidEmail => Email is not null && Email.Contains("@");
 
     public bool IsLoyal => DoneCount > PricingRules.LoyalRentals;
+
+    public string Describe()
+    {
+        string s = Name.Trim().ToUpper();
+        if (Kind == RenterKind.Vip)
+        {
+            s += " [VIP]";
+        }
+
+        if (IsLoyal)
+        {
+            s += " [ЛОЯЛЬНИЙ]";
+        }
+
+        s += " <" + Email.ToLower() + ">";
+        return s + " стаж " + (DateTime.Now.Year - SinceUtc.Year);
+    }
 }

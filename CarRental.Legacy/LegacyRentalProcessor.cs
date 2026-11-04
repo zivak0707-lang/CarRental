@@ -88,17 +88,6 @@ public class LegacyRentalProcessor
         return payable + _shipping.For(payable);
     }
 
-    public string DescribeClient(Renter c)
-    {
-        string s = c.Name.Trim().ToUpper();
-        if (c.Kind == RenterKind.Vip) s += " [VIP]";
-        if (c.DoneCount > PricingRules.LoyalRentals) s += " [ЛОЯЛЬНИЙ]";
-        s += " <" + c.Email.ToLower() + ">";
-        int years = DateTime.Now.Year - c.SinceUtc.Year;
-        s += " стаж " + years;
-        return s;
-    }
-
     public string DumpLog()
     {
         string r = "";

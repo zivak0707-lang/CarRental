@@ -23,39 +23,16 @@ public class LegacyRentalProcessor
         List<CarLine>? lines, DocumentState state,
         string currency, DateTime createdAt, bool sendMail)
     {
-        if (lines != null)
+        string? error = Validate(lines, state, renterMail);
+        if (error != null)
         {
-            if (lines.Count > 0)
-            {
-                if (state == DocumentState.New || state == DocumentState.Paid)
-                {
-                    if (renterMail != null &&
-                        renterMail.Contains("@"))
-                    {
-                        _log.Add("ok " + reservationId);
-                    }
-                    else
-                    {
-                        return "ERR: mail";
-                    }
-                }
-                else
-                {
-                    return "ERR: state";
-                }
-            }
-            else
-            {
-                return "ERR: empty";
-            }
-        }
-        else
-        {
-            return "ERR: null";
+            return error;
         }
 
+        _log.Add("ok " + reservationId);
+
         _tmpSum = 0m;
-        for (int i = 0; i < lines.Count; i++)
+        for (int i = 0; i < lines!.Count; i++)
         {
             _tmpSum += lines[i].Days * lines[i].DailyRate;
         }
@@ -101,6 +78,32 @@ public class LegacyRentalProcessor
             _log.Add("mail -> " + renterMail);
         }
         return txt;
+    }
+
+    private static string? Validate(List<CarLine>? lines,
+        DocumentState state, string? renterMail)
+    {
+        if (lines is null)
+        {
+            return "ERR: null";
+        }
+
+        if (lines.Count == 0)
+        {
+            return "ERR: empty";
+        }
+
+        if (state is not (DocumentState.New or DocumentState.Paid))
+        {
+            return "ERR: state";
+        }
+
+        if (renterMail is null || !renterMail.Contains("@"))
+        {
+            return "ERR: mail";
+        }
+
+        return null;
     }
 
     public decimal Preview(RenterKind renterKind, int renterDone,

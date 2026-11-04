@@ -15,6 +15,9 @@ public class LegacyRentalProcessor
 {
     private decimal _tmpSum;
     private decimal _tmpDiscount;
+    private readonly DiscountPolicy _discounts = new();
+    private readonly ShippingPolicy _shipping = new();
+    private readonly ReportBuilder _report = new();
     private readonly List<string> _log = new();
 
     public string Handle(RentalRequest req)
@@ -29,30 +32,16 @@ public class LegacyRentalProcessor
         IReadOnlyList<CarLine> lines = req.Lines!;
 
         _tmpSum = Subtotal(lines);
-        _tmpDiscount = DiscountOf(_tmpSum, req.Renter);
-        decimal ship = ShippingOf(_tmpSum - _tmpDiscount);
+        _tmpDiscount = _discounts.For(_tmpSum, req.Renter);
+        decimal ship = _shipping.For(_tmpSum - _tmpDiscount);
         decimal total = _tmpSum - _tmpDiscount + ship;
-
-        string txt = "Документ #" + req.ReservationId + "\n";
-        txt += "Клієнт: " + req.Renter.Name + "\n";
-        for (int i = 0; i < lines.Count; i++)
-        {
-            txt += lines[i].Plate + " x" + lines[i].Days + " = " +
-                (lines[i].Days * lines[i].DailyRate)
-                    .ToString("0.00") + " " + req.Currency + "\n";
-        }
-        txt += "Знижка: " + _tmpDiscount.ToString("0.00") +
-            " " + req.Currency + "\n";
-        txt += "Доставка: " + ship.ToString("0.00") +
-            " " + req.Currency + "\n";
-        txt += "Разом: " + total.ToString("0.00") +
-            " " + req.Currency + "\n";
 
         if (req.SendMail)
         {
             _log.Add("mail -> " + req.Renter.Email);
         }
-        return txt;
+
+        return _report.Build(req, _tmpDiscount, ship, total);
     }
 
     private static decimal Subtotal(IReadOnlyList<CarLine> lines)
@@ -65,20 +54,6 @@ public class LegacyRentalProcessor
 
         return sum;
     }
-
-    private static decimal DiscountOf(decimal subtotal, Renter renter)
-    {
-        decimal rate = renter.Kind switch
-        {
-            RenterKind.Vip => PricingRules.VipRate,
-            RenterKind.Staff => PricingRules.StaffRate,
-            _ => renter.IsLoyal ? PricingRules.LoyalRate : 0m,
-        };
-        return Math.Min(subtotal * rate, PricingRules.MaxDiscount);
-    }
-
-    private static decimal ShippingOf(decimal payable) =>
-        payable < PricingRules.FreeShipFrom ? PricingRules.ShipCost : 0m;
 
     private static string? Validate(RentalRequest req)
     {
@@ -108,9 +83,9 @@ public class LegacyRentalProcessor
     public decimal Preview(Renter renter, IReadOnlyList<CarLine> lines)
     {
         decimal subtotal = Subtotal(lines);
-        decimal discount = DiscountOf(subtotal, renter);
+        decimal discount = _discounts.For(subtotal, renter);
         decimal payable = subtotal - discount;
-        return payable + ShippingOf(payable);
+        return payable + _shipping.For(payable);
     }
 
     public string DescribeClient(Renter c)

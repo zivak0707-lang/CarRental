@@ -7,13 +7,17 @@ namespace CarRental.Core.Storage;
 public sealed class FileAuditLog : IDisposable
 {
     private readonly StreamWriter _writer;
+    private readonly TimeProvider _clock;
     private bool _disposed;
 
     /// <summary>Відкриває файл аудиту для дописування.</summary>
     /// <param name="path">Шлях до файлу.</param>
-    public FileAuditLog(string path)
+    /// <param name="clock">Джерело поточного часу.</param>
+    public FileAuditLog(string path, TimeProvider clock)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        ArgumentNullException.ThrowIfNull(clock);
+        _clock = clock;
         _writer = new StreamWriter(path, append: true);
     }
 
@@ -24,7 +28,7 @@ public sealed class FileAuditLog : IDisposable
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentException.ThrowIfNullOrWhiteSpace(operation);
-        _writer.WriteLine($"{DateTimeOffset.Now:O};{operation};{documentId}");
+        _writer.WriteLine($"{_clock.GetLocalNow():O};{operation};{documentId}");
     }
 
     /// <summary>Скидає буфер на диск і закриває файл; повторний виклик нічого не робить.</summary>

@@ -1,3 +1,5 @@
+using CarRental.Core.Pricing;
+
 namespace CarRental.Core.Domain;
 
 /// <summary>
@@ -52,11 +54,12 @@ public class Booking
     /// </summary>
     /// <param name="id">Ідентифікатор бронювання.</param>
     /// <param name="customerName">Ім'я клієнта.</param>
-    public Booking(string id, string customerName)
+    /// <param name="createdAt">Момент створення бронювання.</param>
+    public Booking(string id, string customerName, DateTimeOffset createdAt)
     {
         Id = id;
         CustomerName = customerName;
-        CreatedAt = DateTime.Now;
+        CreatedAt = createdAt;
     }
 
     /// <summary>
@@ -77,7 +80,7 @@ public class Booking
     /// <summary>
     /// Дата й час створення бронювання.
     /// </summary>
-    public DateTime CreatedAt { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
 
     /// <summary>
     /// Шукає бронювання за ідентифікатором у списку.
@@ -87,8 +90,9 @@ public class Booking
     /// <returns>
     /// Знайдене бронювання або null, якщо збігів немає.
     /// </returns>
-    public static Booking? FindById(List<Booking> bookings, string bookingId)
+    public static Booking? FindById(IReadOnlyList<Booking> bookings, string bookingId)
     {
+        ArgumentNullException.ThrowIfNull(bookings);
         for (int i = 0; i < bookings.Count; i++)
         {
             if (bookings[i].Id == bookingId)
@@ -151,7 +155,7 @@ public class Booking
 
         // ПДВ 20 % нараховується на суму вже після всіх знижок
         total += total * VatRate;
-        return Math.Round(total, 2);
+        return Money.RoundToKopecks(total);
     }
 
     /// <summary>
@@ -193,18 +197,12 @@ public class Booking
     /// </returns>
     public bool IsValid()
     {
-        if (Id != null && Id != string.Empty
-            && CustomerName != null
-            && CustomerName.Length >= MinCustomerNameLength
-            && _lines.Count > 0
-            && _lines.Count < MaxLineCount
-            && Status >= StatusNew
-            && Status <= StatusCancelled)
-        {
-            return true;
-        }
+        bool hasIdentity = !string.IsNullOrEmpty(Id);
+        bool hasValidName = CustomerName?.Length >= MinCustomerNameLength;
+        bool hasValidLines = _lines.Count is > 0 and < MaxLineCount;
+        bool hasKnownStatus = Status is >= StatusNew and <= StatusCancelled;
 
-        return false;
+        return hasIdentity && hasValidName && hasValidLines && hasKnownStatus;
     }
 
     /// <summary>

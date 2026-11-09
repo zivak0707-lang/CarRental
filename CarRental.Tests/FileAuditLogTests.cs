@@ -19,7 +19,7 @@ public class FileAuditLogTests
 
     private static void WriteThenFail(string path)
     {
-        using var audit = new FileAuditLog(path);
+        using var audit = new FileAuditLog(path, TimeProvider.System);
         audit.Write("reservation.paid", 1);
         throw new InvalidOperationException("збій після запису");
     }

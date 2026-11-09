@@ -1,0 +1,9 @@
+P:System.DateTime.Now;D-15: поточний час у бібліотеці лише через TimeProvider
+P:System.DateTime.UtcNow;D-15: поточний час у бібліотеці лише через TimeProvider
+P:System.DateTime.Today;D-15: поточний час у бібліотеці лише через TimeProvider
+P:System.DateTimeOffset.Now;D-15: поточний час у бібліотеці лише через TimeProvider
+P:System.DateTimeOffset.UtcNow;D-15: поточний час у бібліотеці лише через TimeProvider
+M:System.Math.Round(System.Decimal,System.Int32);D-12: гроші округлює лише Money.RoundToKopecks
+M:System.Math.Round(System.Decimal);D-12: гроші округлює лише Money.RoundToKopecks
+M:System.Decimal.Round(System.Decimal,System.Int32);D-12: гроші округлює лише Money.RoundToKopecks
+M:System.Decimal.Round(System.Decimal);D-12: гроші округлює лише Money.RoundToKopecks

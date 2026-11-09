@@ -1,3 +1,8 @@
 [*.cs]
-# назви тестів мають вигляд Метод_Сценарій_Результат, підкреслення тут норма
+# N-15: назви тестів мають вигляд Метод_Ситуація_Результат, підкреслення тут норма
 dotnet_diagnostic.CA1707.severity = none
+dotnet_naming_style.pascal.word_separator = _
+# C-05: XML-документація обов'язкова для бібліотеки логіки, тест документує своє ім'я
+dotnet_diagnostic.CS1591.severity = none
+# S-02: аргументи тестам передає xUnit із [InlineData], значення null там виключено
+dotnet_diagnostic.CA1062.severity = none

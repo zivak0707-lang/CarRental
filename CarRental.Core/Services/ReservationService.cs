@@ -2,6 +2,7 @@ using System.Diagnostics;
 using CarRental.Core.Abstractions;
 using CarRental.Core.Domain;
 using CarRental.Core.Errors;
+using CarRental.Core.Pricing;
 using Microsoft.Extensions.Logging;
 
 namespace CarRental.Core.Services;
@@ -54,7 +55,7 @@ public sealed class ReservationService
         }
 
         Debug.Assert(total >= 0m, "Сума бронювання не може бути від'ємною.");
-        return total;
+        return Money.RoundToKopecks(total);
     }
 
     /// <summary>Додає перевірену позицію до чернетки бронювання.</summary>

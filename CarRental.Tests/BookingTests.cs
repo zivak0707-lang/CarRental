@@ -4,6 +4,8 @@ namespace CarRental.Tests;
 
 public class BookingTests
 {
+    private static readonly DateTimeOffset _createdAt = new(2026, 11, 2, 9, 0, 0, TimeSpan.Zero);
+
     [Theory]
     [InlineData(1000, true, 1200)]
     [InlineData(1000.01, true, 1080.01)]
@@ -78,7 +80,7 @@ public class BookingTests
     public void IsValid_Fields_MatchesRules(string id, string name, int lines, bool expected)
     {
         // Arrange
-        Booking booking = new(id, name);
+        Booking booking = new(id, name, _createdAt);
         AddLines(booking, lines, 100m);
 
         // Act
@@ -120,7 +122,7 @@ public class BookingTests
 
     private static Booking NewBooking(int lines, decimal dailyRate)
     {
-        Booking booking = new("B-1", "Петренко");
+        Booking booking = new("B-1", "Петренко", _createdAt);
         AddLines(booking, lines, dailyRate);
         return booking;
     }

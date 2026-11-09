@@ -75,7 +75,7 @@ static void RunApplication(ILoggerFactory loggerFactory)
         notifier,
         loggerFactory.CreateLogger<ReservationService>());
 
-    using var audit = new FileAuditLog("audit.log");
+    using var audit = new FileAuditLog("audit.log", TimeProvider.System);
     var reservation = new Reservation(1, renter.Id, DateOnly.FromDateTime(DateTime.Today));
     service.Place(reservation);
     service.AddLine(reservation.Id, line);

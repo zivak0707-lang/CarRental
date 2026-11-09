@@ -1,5 +1,6 @@
 using System.Text;
 using CarRental.App.Input;
+using CarRental.Core;
 using CarRental.Core.Abstractions;
 using CarRental.Core.Domain;
 using CarRental.Core.Errors;
@@ -11,6 +12,7 @@ using CarRental.Core.Storage;
 using Microsoft.Extensions.Logging;
 
 Console.OutputEncoding = Encoding.UTF8;
+Console.WriteLine($"CarRental v{VersionInfo.Current()}");
 
 using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
 {

@@ -12,6 +12,9 @@ public static class RentalCostPolicy
     /// <summary>Кількість діб, від якої діє багатоденна знижка.</summary>
     public const int MultiDayFrom = 5;
 
+    /// <summary>Тривалість, понад яку тариф вихідного дня не діє, діб.</summary>
+    public const int WeekendMaxDays = 7;
+
     /// <summary>Рахує вартість однієї доби прокату.</summary>
     /// <param name="dailyRate">Базова ставка за добу, грн, більша за нуль.</param>
     /// <param name="days">Тривалість прокату, діб, не менше однієї.</param>
@@ -34,7 +37,7 @@ public static class RentalCostPolicy
         }
 
         decimal factor = 1m;
-        if (isWeekend)
+        if (isWeekend && days <= WeekendMaxDays)
         {
             factor += WeekendRate;
         }

@@ -89,7 +89,11 @@ public class LegacyRentalProcessor
     public string DumpLog()
     {
         string r = "";
-        foreach (var l in _log) r += l + "\n";
+        foreach (var l in _log)
+        {
+            r += l + "\n";
+        }
+
         return r;
     }
 }

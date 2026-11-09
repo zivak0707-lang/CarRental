@@ -18,15 +18,15 @@ public static class RentalReport
         ArgumentNullException.ThrowIfNull(result);
         CultureInfo culture = CultureInfo.InvariantCulture;
         StringBuilder text = new();
-        text.AppendLine($"Прокат № {request.RentalId}");
-        text.AppendLine($"Клієнт: {request.Customer.Name}");
+        text.AppendLine(culture, $"Прокат № {request.RentalId}");
+        text.AppendLine(culture, $"Клієнт: {request.Customer.Name}");
         foreach (RentalLine line in request.Lines)
         {
-            text.AppendLine($"{line.Plate} x {line.Days}");
+            text.AppendLine(culture, $"{line.Plate} x {line.Days}");
         }
 
         text.AppendLine(string.Format(culture, "Разом: {0:F2}", result.Total));
-        text.AppendLine($"Стан: {result.Status}");
+        text.AppendLine(culture, $"Стан: {result.Status}");
         return text.ToString();
     }
 }

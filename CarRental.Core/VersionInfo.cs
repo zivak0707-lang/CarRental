@@ -12,8 +12,8 @@ public static class VersionInfo
         var assembly = typeof(VersionInfo).Assembly;
         var attribute = assembly.GetCustomAttribute<
             AssemblyInformationalVersionAttribute>();
-        var raw = attribute?.InformationalVersion ?? "0.0.0";
-        var plus = raw.IndexOf('+');
+        string raw = attribute?.InformationalVersion ?? "0.0.0";
+        int plus = raw.IndexOf('+');
         return plus < 0 ? raw : raw[..plus];
     }
 }

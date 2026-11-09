@@ -12,6 +12,8 @@ public class RentalCostPolicyTests
     [InlineData(1000, 5, false, 900)]
     [InlineData(1000, 5, true, 1100)]
     [InlineData(333.33, 5, true, 366.66)]
+    [InlineData(1000, 7, true, 1100)]
+    [InlineData(1000, 8, false, 900)]
     public void DailyCostFor_Boundaries_MatchesTable(
         double dailyRate, int days, bool isWeekend, double expected)
     {

@@ -22,6 +22,12 @@ public static class RentalCostPolicy
     /// <returns>Вартість доби, грн, округлена до копійок.</returns>
     public static decimal DailyCostFor(decimal dailyRate, int days, bool isWeekend)
     {
+        EnsureArgumentsAreValid(dailyRate, days);
+        return decimal.Round(dailyRate * FactorFor(days, isWeekend), 2);
+    }
+
+    private static void EnsureArgumentsAreValid(decimal dailyRate, int days)
+    {
         if (dailyRate <= 0m)
         {
             throw new ArgumentOutOfRangeException(
@@ -35,7 +41,10 @@ public static class RentalCostPolicy
                 nameof(days),
                 "Тривалість прокату — щонайменше одна доба.");
         }
+    }
 
+    private static decimal FactorFor(int days, bool isWeekend)
+    {
         decimal factor = 1m;
         if (isWeekend && days <= WeekendMaxDays)
         {
@@ -47,6 +56,6 @@ public static class RentalCostPolicy
             factor -= MultiDayRate;
         }
 
-        return decimal.Round(dailyRate * factor, 2);
+        return factor;
     }
 }

@@ -1,5 +1,7 @@
 # CarRental
 
+![CI](https://github.com/zivak0707-lang/CarRental/actions/workflows/ci.yml/badge.svg?branch=main)
+
 Навчальний проєкт з дисципліни «Конструювання програмного
 забезпечення». Варіант № 7: бронювання автомобілів у прокаті.
 

@@ -4,120 +4,48 @@ namespace CarRental.Tests;
 
 public class RentalCostPolicyTests
 {
-    [Fact]
-    public void DailyCostFor_NegativeRate_Throws()
+    [Theory]
+    [InlineData(0.01, 1, false, 0.01)]
+    [InlineData(1000, 1, false, 1000)]
+    [InlineData(1000, 1, true, 1200)]
+    [InlineData(1000, 4, false, 1000)]
+    [InlineData(1000, 5, false, 900)]
+    [InlineData(1000, 5, true, 1100)]
+    [InlineData(333.33, 5, true, 366.66)]
+    public void DailyCostFor_Boundaries_MatchesTable(
+        double dailyRate, int days, bool isWeekend, double expected)
     {
-        // Arrange
-        decimal dailyRate = -0.01m;
-
         // Act
-        void Act() => RentalCostPolicy.DailyCostFor(dailyRate, 3, false);
+        decimal actual = RentalCostPolicy.DailyCostFor((decimal)dailyRate, days, isWeekend);
 
         // Assert
-        Assert.Throws<ArgumentOutOfRangeException>(Act);
+        Assert.Equal((decimal)expected, actual);
     }
 
-    [Fact]
-    public void DailyCostFor_ZeroDays_Throws()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-0.01)]
+    [InlineData(-1000)]
+    public void DailyCostFor_InvalidRate_ThrowsOutOfRange(double dailyRate)
     {
-        // Arrange
-        int days = 0;
-
         // Act
-        void Act() => RentalCostPolicy.DailyCostFor(1000m, days, false);
+        ArgumentOutOfRangeException ex = Assert.Throws<ArgumentOutOfRangeException>(
+            () => RentalCostPolicy.DailyCostFor((decimal)dailyRate, 3, false));
 
         // Assert
-        Assert.Throws<ArgumentOutOfRangeException>(Act);
+        Assert.Equal("dailyRate", ex.ParamName);
     }
 
-    [Fact]
-    public void DailyCostFor_MinimalRate_ReturnsSameRate()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void DailyCostFor_InvalidDays_ThrowsOutOfRange(int days)
     {
-        // Arrange
-        decimal dailyRate = 0.01m;
-
         // Act
-        decimal actual = RentalCostPolicy.DailyCostFor(dailyRate, 1, false);
+        ArgumentOutOfRangeException ex = Assert.Throws<ArgumentOutOfRangeException>(
+            () => RentalCostPolicy.DailyCostFor(1000m, days, false));
 
         // Assert
-        Assert.Equal(0.01m, actual);
-    }
-
-    [Fact]
-    public void DailyCostFor_WeekdayOneDay_ReturnsBaseRate()
-    {
-        // Arrange
-        decimal dailyRate = 1000m;
-
-        // Act
-        decimal actual = RentalCostPolicy.DailyCostFor(dailyRate, 1, false);
-
-        // Assert
-        Assert.Equal(1000m, actual);
-    }
-
-    [Fact]
-    public void DailyCostFor_WeekendOneDay_AddsSurcharge()
-    {
-        // Arrange
-        decimal dailyRate = 1000m;
-
-        // Act
-        decimal actual = RentalCostPolicy.DailyCostFor(dailyRate, 1, true);
-
-        // Assert
-        Assert.Equal(1200m, actual);
-    }
-
-    [Fact]
-    public void DailyCostFor_FourDays_NoDiscount()
-    {
-        // Arrange
-        int days = RentalCostPolicy.MultiDayFrom - 1;
-
-        // Act
-        decimal actual = RentalCostPolicy.DailyCostFor(1000m, days, false);
-
-        // Assert
-        Assert.Equal(1000m, actual);
-    }
-
-    [Fact]
-    public void DailyCostFor_FiveDays_AppliesDiscount()
-    {
-        // Arrange
-        int days = RentalCostPolicy.MultiDayFrom;
-
-        // Act
-        decimal actual = RentalCostPolicy.DailyCostFor(1000m, days, false);
-
-        // Assert
-        Assert.Equal(900m, actual);
-    }
-
-    [Fact]
-    public void DailyCostFor_FiveDaysWeekend_CombinesBothRules()
-    {
-        // Arrange
-        int days = RentalCostPolicy.MultiDayFrom;
-
-        // Act
-        decimal actual = RentalCostPolicy.DailyCostFor(1000m, days, true);
-
-        // Assert
-        Assert.Equal(1100m, actual);
-    }
-
-    [Fact]
-    public void DailyCostFor_NonRoundProduct_RoundsToKopecks()
-    {
-        // Arrange
-        decimal dailyRate = 333.33m;
-
-        // Act
-        decimal actual = RentalCostPolicy.DailyCostFor(dailyRate, 5, true);
-
-        // Assert
-        Assert.Equal(366.66m, actual);
+        Assert.Equal("days", ex.ParamName);
     }
 }

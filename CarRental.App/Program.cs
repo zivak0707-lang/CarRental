@@ -4,6 +4,7 @@ using CarRental.Core;
 using CarRental.Core.Abstractions;
 using CarRental.Core.Domain;
 using CarRental.Core.Errors;
+using CarRental.Core.Input;
 using CarRental.Core.Notifications;
 using CarRental.Core.Pricing;
 using CarRental.Core.Reporting;

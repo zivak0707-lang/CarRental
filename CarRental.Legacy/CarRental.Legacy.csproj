@@ -4,6 +4,7 @@
     <!-- Успадкований модуль ЛР6 переноситься без змін, тому аналізатори курсу для нього вимкнено -->
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
 </Project>

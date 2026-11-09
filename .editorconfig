@@ -166,6 +166,8 @@ dotnet_diagnostic.SA1101.severity = none
 dotnet_diagnostic.SA1200.severity = none
 # SA1309: забороняє поле з підкресленням; прямо суперечить N-04
 dotnet_diagnostic.SA1309.severity = none
+# SA1311: вимагає велику літеру для static readonly; суперечить N-05
+dotnet_diagnostic.SA1311.severity = none
 # SA0001: дублює CS1591, файл документації вмикає Directory.Build.props
 dotnet_diagnostic.SA0001.severity = none
 # SA1601: частково визначених типів у проєкті немає (див. N-03)

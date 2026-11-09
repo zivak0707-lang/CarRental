@@ -12,6 +12,6 @@ public sealed class VipPricingPolicy : IPricingPolicy
     public decimal PriceOf(ReservationDay line)
     {
         ArgumentNullException.ThrowIfNull(line);
-        return Math.Round(line.Amount * (1m - VipRate), 2);
+        return line.Amount * (1m - VipRate);
     }
 }

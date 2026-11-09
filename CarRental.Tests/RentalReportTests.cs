@@ -6,7 +6,7 @@ namespace CarRental.Tests;
 public class RentalReportTests
 {
     [Fact]
-    public void TextOf_ContainsTotalLine()
+    public void TextOf_RegularCustomer_ContainsTotalLine()
     {
         TotalRequest request = SampleRequests.RegularCustomer();
         TotalResult result = RentalTotalCalculator.Calculate(request);
@@ -17,7 +17,7 @@ public class RentalReportTests
     }
 
     [Fact]
-    public void Print_WritesReportToOutput()
+    public void Print_ReportText_WritesToOutput()
     {
         StringWriter writer = new();
         RentalReportPrinter printer = new(writer);

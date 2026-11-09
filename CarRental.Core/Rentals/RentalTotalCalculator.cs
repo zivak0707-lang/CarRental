@@ -1,4 +1,5 @@
 using CarRental.Core.Domain;
+using CarRental.Core.Pricing;
 
 namespace CarRental.Core.Rentals;
 
@@ -124,7 +125,7 @@ public static class RentalTotalCalculator
         total += DeliveryFeeOf(total, request.DeliveryPrice);
         total = request.Status == RentalStatus.Cancelled
             ? 0m
-            : Math.Round(Math.Max(total, 0m), 2);
+            : Money.RoundToKopecks(Math.Max(total, 0m));
         return new TotalResult(total, NextStatusOf(request.Status, total));
     }
 }

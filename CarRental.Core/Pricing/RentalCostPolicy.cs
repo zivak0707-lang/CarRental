@@ -23,7 +23,7 @@ public static class RentalCostPolicy
     public static decimal DailyCostFor(decimal dailyRate, int days, bool isWeekend)
     {
         EnsureArgumentsAreValid(dailyRate, days);
-        return decimal.Round(dailyRate * FactorFor(days, isWeekend), 2);
+        return Money.RoundToKopecks(dailyRate * FactorFor(days, isWeekend));
     }
 
     private static void EnsureArgumentsAreValid(decimal dailyRate, int days)

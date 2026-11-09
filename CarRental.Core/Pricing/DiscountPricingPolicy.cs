@@ -29,6 +29,6 @@ public sealed class DiscountPricingPolicy : IPricingPolicy
     public decimal PriceOf(ReservationDay line)
     {
         ArgumentNullException.ThrowIfNull(line);
-        return Math.Round(line.Amount * (1m - _rate), 2);
+        return line.Amount * (1m - _rate);
     }
 }

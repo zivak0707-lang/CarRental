@@ -17,8 +17,11 @@
     dotnet run --project CarRental.App
 
 ## Стандарт кодування
-Правила описано у файлі CODING_STANDARD.md і закріплено
-в .editorconfig. Перевірка: dotnet format --verify-no-changes
+Правила описано у файлі CODING_STANDARD.md і закріплено в .editorconfig,
+Directory.Build.props та тестах StandardComplianceTests. Огляд коду ведуть
+за docs/review-checklist.md, рішення записують у docs/decision-log.md.
+
+Перед комітом: dotnet format --verify-no-changes, dotnet build -warnaserror, dotnet test
 
 ## Обробка помилок і журнал (ЛР5)
 - Помилки вводу повертаються як Result: застосунок пояснює помилку й питає знову.

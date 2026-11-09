@@ -48,4 +48,17 @@ public class RentalCostPolicyTests
         // Assert
         Assert.Equal("days", ex.ParamName);
     }
+
+    [Fact]
+    public void DailyCostFor_WeekendOverSevenDays_TariffNotApplied()
+    {
+        // Arrange
+        int days = 8;
+
+        // Act
+        decimal actual = RentalCostPolicy.DailyCostFor(1000m, days, true);
+
+        // Assert
+        Assert.Equal(900m, actual);
+    }
 }

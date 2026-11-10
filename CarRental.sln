@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarRental.ConsoleApp", "src\CarRental.ConsoleApp\CarRental.ConsoleApp.csproj", "{B85C8DF1-2934-48EF-A7A5-04A92991A37E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{022ECCFD-77AA-4DD8-BBB7-F1206DD4CB2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarRental.Tests", "tests\CarRental.Tests\CarRental.Tests.csproj", "{046F099B-1CE0-4545-985E-E62B769149B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,11 +42,16 @@ Global
 		{B85C8DF1-2934-48EF-A7A5-04A92991A37E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B85C8DF1-2934-48EF-A7A5-04A92991A37E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B85C8DF1-2934-48EF-A7A5-04A92991A37E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{046F099B-1CE0-4545-985E-E62B769149B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{046F099B-1CE0-4545-985E-E62B769149B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{046F099B-1CE0-4545-985E-E62B769149B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{046F099B-1CE0-4545-985E-E62B769149B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1FCAF8B2-0665-4EE5-971E-37B88149938C} = {E8C0E097-4E01-4E71-99F1-9B4A1DA651AE}
 		{8B1EDCF1-DC57-4506-828B-9D2AAEA4DB40} = {E8C0E097-4E01-4E71-99F1-9B4A1DA651AE}
 		{5C79CD36-59B7-40DA-9513-CA6FE1070507} = {E8C0E097-4E01-4E71-99F1-9B4A1DA651AE}
 		{B85C8DF1-2934-48EF-A7A5-04A92991A37E} = {E8C0E097-4E01-4E71-99F1-9B4A1DA651AE}
+		{046F099B-1CE0-4545-985E-E62B769149B5} = {022ECCFD-77AA-4DD8-BBB7-F1206DD4CB2D}
 	EndGlobalSection
 EndGlobal

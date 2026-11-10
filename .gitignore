@@ -501,3 +501,7 @@ TestResults/
 coverage/
 appsettings.Local.json
 **/*.secrets.json
+# CarRental: журнал застосунку і звіти про покриття
+logs/
+coveragereport/
+coverage.cobertura.xml

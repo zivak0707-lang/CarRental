@@ -1,4 +1,5 @@
 using CarRental.Domain.Errors;
+using CarRental.Domain.Pricing;
 using CarRental.Domain.Rentals;
 using CarRental.Tests.Doubles;
 
@@ -46,5 +47,30 @@ public class RentalLifecycleTests
 
         Assert.Equal(RentalStatus.Active, rental.Status);
         Assert.Equal(Sample.Now, rental.PickedUpAt);
+    }
+
+    [Fact]
+    public void Close_Active_StoresChargeAndReturnTime()
+    {
+        var rental = Sample.Active(1001, "AA1001AA", Sample.Now);
+        var calculator = new RentalChargeCalculator(new StandardLateFeePolicy());
+
+        var charge = rental.Close(Sample.Now.AddDays(2), calculator);
+
+        Assert.Equal(RentalStatus.Closed, rental.Status);
+        Assert.Equal(Sample.Now.AddDays(2), rental.ReturnedAt);
+        Assert.Equal(1800m, charge.Total);
+    }
+
+    [Fact]
+    public void Close_Reserved_ThrowsAndKeepsState()
+    {
+        var rental = Sample.Reserved(1001, "AA1001AA");
+        var calculator = new RentalChargeCalculator(new StandardLateFeePolicy());
+
+        Assert.Throws<InvalidRentalStateException>(() => rental.Close(Sample.Now, calculator));
+
+        Assert.Equal(RentalStatus.Reserved, rental.Status);
+        Assert.Null(rental.Charge);
     }
 }

@@ -1,3 +1,5 @@
+using CarRental.Domain.Pricing;
+
 namespace CarRental.Domain.Rentals;
 
 /// <summary>Документ оренди: від бронювання до закриття або скасування.</summary>
@@ -57,6 +59,22 @@ public sealed class Rental
     {
         Status = RentalTransitions.Next(Status, RentalEvent.PickUp);
         PickedUpAt = at;
+    }
+
+    /// <summary>Закриває оренду: Active → Closed і нараховує суму.</summary>
+    /// <param name="returnedAt">Фактичний момент повернення; пізніший за видачу.</param>
+    /// <param name="calculator">Профільне правило розрахунку.</param>
+    /// <returns>Нарахування за оренду.</returns>
+    /// <exception cref="Errors.InvalidRentalStateException">Оренда не в стані Active.</exception>
+    public RentalCharge Close(DateTimeOffset returnedAt, RentalChargeCalculator calculator)
+    {
+        ArgumentNullException.ThrowIfNull(calculator);
+        RentalStatus next = RentalTransitions.Next(Status, RentalEvent.Close);
+        var stay = new StayPeriod(PickedUpAt!.Value, returnedAt, Terms.Period.End);
+        Charge = calculator.Calculate(Terms.DailyRate, stay);
+        ReturnedAt = returnedAt;
+        Status = next;
+        return Charge;
     }
 
     /// <summary>Скасовує бронювання: Reserved → Cancelled.</summary>

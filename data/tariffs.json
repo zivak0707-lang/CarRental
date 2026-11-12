@@ -1,0 +1,18 @@
+[
+  {
+    "class": "Economy",
+    "dailyRate": 900
+  },
+  {
+    "class": "Compact",
+    "dailyRate": 1200
+  },
+  {
+    "class": "Suv",
+    "dailyRate": 1800
+  },
+  {
+    "class": "Premium",
+    "dailyRate": 2600
+  }
+]

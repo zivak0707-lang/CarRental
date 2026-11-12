@@ -1,0 +1,302 @@
+[
+  {
+    "plate": "AA8130PO",
+    "model": "Skoda Fabia",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA9614CM",
+    "model": "Renault Clio",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA5023XB",
+    "model": "Hyundai i20",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA8636IM",
+    "model": "Kia Rio",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA1419MO",
+    "model": "Skoda Fabia",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA4446OK",
+    "model": "Renault Clio",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA8382PP",
+    "model": "Hyundai i20",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA9848AX",
+    "model": "Kia Rio",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA6827PI",
+    "model": "Skoda Fabia",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA7785PO",
+    "model": "Renault Clio",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA9180BM",
+    "model": "Hyundai i20",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA5509KA",
+    "model": "Kia Rio",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA5360KX",
+    "model": "Skoda Fabia",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA9832HA",
+    "model": "Renault Clio",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA5257CK",
+    "model": "Hyundai i20",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA8393MP",
+    "model": "Kia Rio",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA6597XE",
+    "model": "Skoda Fabia",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA1611CC",
+    "model": "Renault Clio",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA9269KM",
+    "model": "Hyundai i20",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA2590BK",
+    "model": "Kia Rio",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA3774PM",
+    "model": "Skoda Fabia",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA3683TP",
+    "model": "Renault Clio",
+    "class": "Economy"
+  },
+  {
+    "plate": "AA7888EP",
+    "model": "Toyota Corolla",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA6568EH",
+    "model": "Skoda Octavia",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA4717XI",
+    "model": "Volkswagen Golf",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA2871CE",
+    "model": "Mazda 3",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA6565KO",
+    "model": "Toyota Corolla",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA6718XO",
+    "model": "Skoda Octavia",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA1112KX",
+    "model": "Volkswagen Golf",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA5272MA",
+    "model": "Mazda 3",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA1853CX",
+    "model": "Toyota Corolla",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA6525MM",
+    "model": "Skoda Octavia",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA4067PX",
+    "model": "Volkswagen Golf",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA1432ME",
+    "model": "Mazda 3",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA6675PT",
+    "model": "Toyota Corolla",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA9739KB",
+    "model": "Skoda Octavia",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA2442KH",
+    "model": "Volkswagen Golf",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA9437KA",
+    "model": "Mazda 3",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA2405TP",
+    "model": "Toyota Corolla",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA3962BM",
+    "model": "Skoda Octavia",
+    "class": "Compact"
+  },
+  {
+    "plate": "AA9217BT",
+    "model": "Kia Sportage",
+    "class": "Suv"
+  },
+  {
+    "plate": "AA8916KK",
+    "model": "Toyota RAV4",
+    "class": "Suv"
+  },
+  {
+    "plate": "AA2427HH",
+    "model": "Hyundai Tucson",
+    "class": "Suv"
+  },
+  {
+    "plate": "AA8927EP",
+    "model": "Nissan Qashqai",
+    "class": "Suv"
+  },
+  {
+    "plate": "AA9349BC",
+    "model": "Kia Sportage",
+    "class": "Suv"
+  },
+  {
+    "plate": "AA1966BO",
+    "model": "Toyota RAV4",
+    "class": "Suv"
+  },
+  {
+    "plate": "AA8066KA",
+    "model": "Hyundai Tucson",
+    "class": "Suv"
+  },
+  {
+    "plate": "AA1189BE",
+    "model": "Nissan Qashqai",
+    "class": "Suv"
+  },
+  {
+    "plate": "AA8494TI",
+    "model": "Kia Sportage",
+    "class": "Suv"
+  },
+  {
+    "plate": "AA6425AB",
+    "model": "Toyota RAV4",
+    "class": "Suv"
+  },
+  {
+    "plate": "AA2798KP",
+    "model": "Hyundai Tucson",
+    "class": "Suv"
+  },
+  {
+    "plate": "AA1977CT",
+    "model": "Nissan Qashqai",
+    "class": "Suv"
+  },
+  {
+    "plate": "AA5882XP",
+    "model": "BMW 520d",
+    "class": "Premium"
+  },
+  {
+    "plate": "AA2532BM",
+    "model": "Mercedes E220",
+    "class": "Premium"
+  },
+  {
+    "plate": "AA4778XP",
+    "model": "Audi A6",
+    "class": "Premium"
+  },
+  {
+    "plate": "AA5098KI",
+    "model": "BMW 520d",
+    "class": "Premium"
+  },
+  {
+    "plate": "AA4531BI",
+    "model": "Mercedes E220",
+    "class": "Premium"
+  },
+  {
+    "plate": "AA1523AK",
+    "model": "Audi A6",
+    "class": "Premium"
+  },
+  {
+    "plate": "AA5227PA",
+    "model": "BMW 520d",
+    "class": "Premium"
+  },
+  {
+    "plate": "AA1750OE",
+    "model": "Mercedes E220",
+    "class": "Premium"
+  }
+]

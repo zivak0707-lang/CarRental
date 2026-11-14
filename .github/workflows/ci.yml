@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, 'feature/**' ]
+    branches: [ '**' ]
   pull_request:
     branches: [ main ]
 
@@ -10,33 +10,45 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     steps:
-      - name: Отримати код
+      - name: 1. Отримати код
         uses: actions/checkout@v4
 
-      - name: Установити .NET 8
+      - name: 1. Установити .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      - name: Відновити залежності
+      - name: 2. Відновити залежності
         run: dotnet restore
 
-      - name: Перевірка форматування
+      - name: 3. Перевірка форматування за .editorconfig
         run: dotnet format --verify-no-changes --no-restore
 
-      - name: Складання Release з аналізаторами
-        run: dotnet build -c Release --no-restore
+      - name: 4. Складання Release без жодного попередження
+        run: dotnet build -c Release --no-restore -warnaserror
 
-      - name: Тести й покриття
+      - name: 5. Тести зі збиранням покриття
         run: >
-          dotnet test -c Release --no-restore
+          dotnet test -c Release --no-build
           /p:CollectCoverage=true
           /p:CoverletOutputFormat=cobertura
-          /p:Threshold=60 /p:ThresholdType=line
+          /p:CoverletOutput=${{ github.workspace }}/coverage/
 
-      - name: Зберегти звіт про покриття
+      - name: 6. Поріг рядкового покриття бібліотеки логіки — 70 %
+        run: |
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          root = ET.parse('coverage/coverage.cobertura.xml').getroot()
+          line = float(root.get('line-rate')) * 100
+          branch = float(root.get('branch-rate')) * 100
+          print(f'Domain + Application: рядки {line:.1f} %, гілки {branch:.1f} %')
+          if line < 70:
+              raise SystemExit(f'Рядкове покриття {line:.1f} % нижче за поріг 70 %')
+          PY
+
+      - name: 7. Зберегти звіт про покриття
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage
-          path: '**/coverage.cobertura.xml'
+          path: coverage/

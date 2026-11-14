@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Межа вимірювання покриття для збирача XPlat Code Coverage: лише бібліотека логіки.
+     Консоль і інфраструктура (файли, журнал) до знаменника не входять. -->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Include>[CarRental.Domain]*,[CarRental.Application]*</Include>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

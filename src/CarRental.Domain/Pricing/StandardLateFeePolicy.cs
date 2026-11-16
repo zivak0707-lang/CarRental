@@ -4,7 +4,7 @@ namespace CarRental.Domain.Pricing;
 public sealed class StandardLateFeePolicy : ILateFeePolicy
 {
     /// <summary>Частка ціни доби, яку стягують за добу запізнення.</summary>
-    public const decimal FeeShare = 0.5m;
+    public const decimal FeeShare = 0.6m;
 
     /// <summary>Пільговий період у хвилинах.</summary>
     public const int GraceMinutes = 60;

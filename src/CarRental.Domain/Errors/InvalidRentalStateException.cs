@@ -13,6 +13,7 @@ public sealed class InvalidRentalStateException : DomainRuleException
             "rental.transition",
             $"Дію «{NameOf(rentalEvent)}» заборонено для оренди у стані {status}.")
     {
+        // TODO TD-12: назва стану потрапляє в повідомлення англійською (Closed, Reserved).
         Status = status;
         Event = rentalEvent;
     }

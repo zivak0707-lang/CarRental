@@ -41,6 +41,8 @@ public sealed class HandoverService
         _log.LogInformation("UC-02 почато: договір {Number}", number);
         Rental? rental = _rentals.Find(number);
         DateTimeOffset now = _clock.GetLocalNow();
+
+        // TODO TD-10: видачу до початку заброньованого періоду не заборонено (spec.md, р. 7).
         string? error = rental is null ? $"Договору № {number} не знайдено."
             : now >= rental.Terms.Period.End ? "Період оренди минув; потрібне нове бронювання."
             : null;

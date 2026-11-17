@@ -24,6 +24,8 @@ public sealed class RentalChargeCalculator
     /// <returns>Нарахування за оренду.</returns>
     public RentalCharge Calculate(decimal dailyRate, StayPeriod stay)
     {
+        // TODO TD-13: новий спосіб рахувати доби чи знижку потребує зміни цього методу;
+        // без змін замінюється лише політика штрафу ILateFeePolicy.
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(dailyRate);
         bool isLate = stay.Lateness > _lateFee.GracePeriod;
         bool inGrace = stay.Lateness > TimeSpan.Zero && !isLate;

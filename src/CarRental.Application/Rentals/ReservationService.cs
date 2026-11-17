@@ -130,6 +130,8 @@ public sealed class ReservationService
         }
 
         var period = new RentalPeriod(request.Start, request.Start.AddDays(request.Days));
+
+        // TODO TD-11: бракує тесту для договорів на інше авто, закритих і виданих.
         bool busy = _rentals.All().Any(
             r => r.Terms.CarPlate == car.Plate && IsOpen(r) && r.Terms.Period.Overlaps(period));
         return busy ? $"Автомобіль {car.Plate} уже заброньовано або видано на цей період." : null;
